@@ -1,3 +1,9 @@
 spring:
   application:
-    name: teamsync-api
+    name: TeamSync API
+
+  profiles:
+    active: dev
+
+server:
+  port: 8080
