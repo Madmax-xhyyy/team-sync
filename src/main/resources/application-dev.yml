@@ -1,7 +1,14 @@
 spring:
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
+  config:
+    import: file:env.properties
+  mongodb:
+    uri: ${MONGODB_URI}
+    database: ${MONGODB_DB}
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: TeamSync
+    access-token-expiration: 900000
+    refresh-token-expiration: 604800000
 
 logging:
   level:
