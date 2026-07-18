@@ -5,7 +5,7 @@ import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
 import com.teamsync.api.features.auth.dto.response.AuthResponse;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
-import com.teamsync.api.features.auth.mapper.UserMapper;
+import com.teamsync.api.features.auth.mapper.AuthMapper;
 import com.teamsync.api.features.auth.security.jwt.JwtService;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
 import com.teamsync.api.features.user.entity.User;
@@ -24,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final UserMapper userMapper;
+  private final AuthMapper userMapper;
   private final AuthenticationManager authenticationManager;
   private final JwtService jwtService;
 

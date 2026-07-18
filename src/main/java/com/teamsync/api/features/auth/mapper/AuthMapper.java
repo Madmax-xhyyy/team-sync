@@ -6,7 +6,7 @@ import com.teamsync.api.features.user.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper {
+public class AuthMapper {
 
     public User toEntity(RegisterRequest request) {
 
