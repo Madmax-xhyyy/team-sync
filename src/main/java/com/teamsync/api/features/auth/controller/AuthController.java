@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teamsync.api.common.response.ApiResponse;
+import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
+import com.teamsync.api.features.auth.dto.response.AuthResponse;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.service.AuthService;
 
@@ -36,5 +38,20 @@ public class AuthController {
                 .message("User registered successfully.")
                 .data(response)
                 .build();
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<AuthResponse> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+
+        AuthResponse response = authService.login(request);
+
+        return ApiResponse.<AuthResponse>builder()
+                .success(true)
+                .message("Login successful.")
+                .data(response)
+                .build();
+
     }
 }
