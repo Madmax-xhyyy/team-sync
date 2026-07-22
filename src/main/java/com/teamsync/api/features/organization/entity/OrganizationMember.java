@@ -6,23 +6,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Document(collection = "organizations")
+@Document(collection = "organization_members")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Organization {
+public class OrganizationMember {
 
-    @Id
-    private String id;
+  @Id
+  private String id;
 
-    private String name;
+  private String organizationId;
 
-    private String description;
+  private String userId;
 
-    private Instant createdAt;
+  private OrganizationRole role;
 
-    private Instant updatedAt;
+  private Instant joinedAt;
 
 }

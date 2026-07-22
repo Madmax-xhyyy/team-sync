@@ -5,11 +5,9 @@ import jakarta.validation.constraints.Size;
 
 public record CreateOrganizationRequest(
 
-  @NotBlank
-  @Size(max = 100)
-  String name,
+    @NotBlank(message = "Organization name is required.") @Size(max = 100) String name,
 
-  @Size(max = 500)
-  String description
+    @Size(max = 500) String description
 
-) {}
+) {
+}
