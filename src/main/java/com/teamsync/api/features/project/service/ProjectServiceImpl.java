@@ -6,6 +6,8 @@ import com.teamsync.api.features.project.dto.response.ProjectResponse;
 import com.teamsync.api.features.project.entity.Project;
 import com.teamsync.api.features.project.mapper.ProjectMapper;
 import com.teamsync.api.features.project.repository.ProjectRepository;
+import com.teamsync.api.features.task.service.TaskColumnService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ProjectRepository projectRepository;
   private final ProjectMapper projectMapper;
   private final OrganizationAuthorizationService authorizationService;
+  private final TaskColumnService taskColumnService;
 
   @Override
   public ProjectResponse createProject(
@@ -35,6 +38,9 @@ public class ProjectServiceImpl implements ProjectService {
         userId);
 
     Project savedProject = projectRepository.save(project);
+
+    taskColumnService.createDefaultColumns(
+        savedProject.getId());
 
     return projectMapper.toResponse(savedProject);
   }
