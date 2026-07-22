@@ -7,6 +7,9 @@ import com.teamsync.api.features.organization.dto.response.OrganizationResponse;
 import com.teamsync.api.features.organization.service.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +34,36 @@ public class OrganizationController {
     return ApiResponse.<OrganizationResponse>builder()
         .success(true)
         .message("Organization created successfully.")
+        .data(response)
+        .build();
+  }
+
+  @GetMapping("/my")
+  public ApiResponse<List<OrganizationResponse>> getMyOrganizations(
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+    List<OrganizationResponse> response = organizationService.getMyOrganizations(
+        currentUser.getUserId());
+
+    return ApiResponse.<List<OrganizationResponse>>builder()
+        .success(true)
+        .message("Organizations retrieved successfully.")
+        .data(response)
+        .build();
+  }
+
+  @GetMapping("/{organizationId}")
+  public ApiResponse<OrganizationResponse> getOrganization(
+      @PathVariable String organizationId,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+    OrganizationResponse response = organizationService.getOrganization(
+        organizationId,
+        currentUser.getUserId());
+
+    return ApiResponse.<OrganizationResponse>builder()
+        .success(true)
+        .message("Organization retrieved successfully.")
         .data(response)
         .build();
   }

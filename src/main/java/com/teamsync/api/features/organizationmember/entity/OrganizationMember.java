@@ -1,8 +1,10 @@
-package com.teamsync.api.features.organization.entity;
+package com.teamsync.api.features.organizationmember.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.teamsync.api.features.organization.entity.OrganizationRole;
 
 import java.time.Instant;
 
