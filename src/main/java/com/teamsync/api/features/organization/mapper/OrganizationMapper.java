@@ -5,8 +5,6 @@ import com.teamsync.api.features.organization.dto.response.OrganizationResponse;
 import com.teamsync.api.features.organization.entity.Organization;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 @Component
 public class OrganizationMapper {
 
@@ -15,10 +13,7 @@ public class OrganizationMapper {
     return Organization.builder()
         .name(request.name())
         .description(request.description())
-        .createdAt(Instant.now())
-        .updatedAt(Instant.now())
         .build();
-
   }
 
   public OrganizationResponse toResponse(Organization organization) {

@@ -1,10 +1,9 @@
 package com.teamsync.api.features.organization.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import com.teamsync.api.common.domain.AuditableEntity;
 
 @Document(collection = "organizations")
 @Getter
@@ -12,17 +11,10 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Organization {
-
-    @Id
-    private String id;
+public class Organization extends AuditableEntity {
 
     private String name;
 
     private String description;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
 
 }

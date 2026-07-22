@@ -2,9 +2,9 @@ package com.teamsync.api.features.user.entity;
 
 import com.teamsync.api.common.constants.AuthProvider;
 import com.teamsync.api.common.constants.Role;
-import com.teamsync.api.common.model.BaseDocument;
+import com.teamsync.api.common.domain.AuditableEntity;
+
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,10 +16,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "users")
-public class User extends BaseDocument {
-
-    @Id
-    private String id;
+public class User extends AuditableEntity {
 
     private String firstName;
 
