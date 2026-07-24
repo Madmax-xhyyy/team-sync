@@ -13,7 +13,7 @@ public class ProjectAuthorizationService {
   private final OrganizationAuthorizationService organizationAuthorizationService;
   private final ProjectDomainService projectDomainService;
 
-  public Project requireProjectMember(
+  public Project requireProjectAccess(
       String organizationId,
       String projectId,
       String userId) {

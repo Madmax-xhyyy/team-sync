@@ -24,6 +24,8 @@ public class Task extends AuditableEntity {
 
     private TaskPriority priority;
 
+    private TaskType type;
+
     private String assigneeId;
 
     private String reporterId;

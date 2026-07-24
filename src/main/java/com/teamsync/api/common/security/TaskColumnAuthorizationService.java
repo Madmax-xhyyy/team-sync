@@ -20,7 +20,7 @@ public class TaskColumnAuthorizationService {
             String userId
     ) {
 
-        projectAuthorizationService.requireProjectMember(
+        projectAuthorizationService.requireProjectAccess(
                 organizationId,
                 projectId,
                 userId

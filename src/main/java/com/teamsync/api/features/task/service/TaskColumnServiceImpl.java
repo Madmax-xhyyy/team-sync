@@ -51,7 +51,7 @@ public class TaskColumnServiceImpl implements TaskColumnService {
       String projectId,
       String userId) {
 
-    projectAuthorizationService.requireProjectMember(
+    projectAuthorizationService.requireProjectAccess(
         organizationId,
         projectId,
         userId);

@@ -22,6 +22,7 @@ public class TaskMapper {
                 .title(request.title())
                 .description(request.description())
                 .priority(request.priority())
+                .type(request.type())
                 .assigneeId(request.assigneeId())
                 .reporterId(reporterId)
                 .dueDate(request.dueDate())
