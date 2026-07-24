@@ -63,6 +63,14 @@ public class PermissionService {
     }
   }
 
+  public void requireCommentCreatePermission(OrganizationMember member) {
+    if (member.getRole() == OrganizationRole.GUEST) {
+        throw new ForbiddenException(
+                "Guests cannot create comments."
+        );
+    }
+  }
+
   public void requireProjectViewPermission(OrganizationMember member) {
 
     if (member.getRole() == OrganizationRole.GUEST) {
