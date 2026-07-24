@@ -14,4 +14,9 @@ public interface OrganizationMemberRepository
         Optional<OrganizationMember> findByOrganizationIdAndUserId(String organizationId, String userId);
 
         List<OrganizationMember> findByOrganizationId(String organizationId);
+
+        Optional<OrganizationMember> findByIdAndOrganizationId(
+        String memberId,
+        String organizationId
+);
 }

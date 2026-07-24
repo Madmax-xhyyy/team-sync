@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.teamsync.api.common.exception.BadRequestException;
 import com.teamsync.api.common.exception.NotFoundException;
@@ -133,27 +134,101 @@ public List<MemberResponse> getMembers(
 }
 
     @Override
-    public MemberResponse updateRole(
-            String organizationId,
-            String memberId,
-            String currentUserId,
-            UpdateMemberRoleRequest request
-    ) {
-        throw new UnsupportedOperationException(
-                "Not implemented yet."
+        @Transactional
+        public MemberResponse updateRole(
+                String organizationId,
+                String memberId,
+                String currentUserId,
+                UpdateMemberRoleRequest request
+        ) {
+
+        OrganizationMember currentMember =
+                organizationAuthorizationService
+                        .requireOrganizationAccess(
+                                organizationId,
+                                currentUserId
+                        );
+
+        OrganizationMember targetMember =
+                organizationMemberRepository
+                        .findByIdAndOrganizationId(
+                                memberId,
+                                organizationId
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Member not found."
+                                )
+                        );
+
+        permissionService.requireRoleUpdatePermission(
+                currentMember,
+                targetMember,
+                request.role()
+        );
+
+        targetMember.setRole(request.role());
+
+        OrganizationMember savedMember =
+                organizationMemberRepository.save(targetMember);
+
+        User user =
+                userRepository.findById(savedMember.getUserId())
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "User not found."
+                                )
+                        );
+
+        return organizationMemberMapper.toResponse(
+                savedMember,
+                user
+        );
+
+        }
+
+    @Override
+@Transactional
+public void removeMember(
+        String organizationId,
+        String memberId,
+        String currentUserId
+) {
+
+    OrganizationMember currentMember =
+            organizationAuthorizationService
+                    .requireOrganizationAccess(
+                            organizationId,
+                            currentUserId
+                    );
+
+    OrganizationMember targetMember =
+            organizationMemberRepository
+                    .findByIdAndOrganizationId(
+                            memberId,
+                            organizationId
+                    )
+                    .orElseThrow(() ->
+                            new NotFoundException(
+                                    "Member not found."
+                            )
+                    );
+
+    // Prevent removing yourself
+    if (currentMember.getId().equals(targetMember.getId())) {
+        throw new BadRequestException(
+                "You cannot remove yourself from the organization."
         );
     }
 
-    @Override
-    public void removeMember(
-            String organizationId,
-            String memberId,
-            String currentUserId
-    ) {
-        throw new UnsupportedOperationException(
-                "Not implemented yet."
-        );
-    }
+    permissionService.requireMemberRemovalPermission(
+            currentMember,
+            targetMember
+    );
+
+    organizationMemberRepository.delete(targetMember);
+
+}
 
 }
 
