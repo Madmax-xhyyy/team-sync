@@ -13,7 +13,7 @@ public class TaskAuthorizationService {
   private final TaskColumnAuthorizationService taskColumnAuthorizationService;
   private final TaskDomainService taskDomainService;
 
-  public Task requireTaskMember(
+  public Task requireTaskAccess(
           String organizationId,
           String projectId,
           String columnId,
