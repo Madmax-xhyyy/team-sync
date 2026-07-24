@@ -7,14 +7,13 @@ import java.util.List;
 
 public interface TaskRepository extends MongoRepository<Task, String> {
 
-    List<Task> findByColumnIdOrderByPositionAsc(String columnId);
+  List<Task> findByColumnIdOrderByPositionAsc(String columnId);
 
-    long countByColumnId(String columnId);
+  long countByColumnId(String columnId);
 
-    List<Task> findByProjectId(String projectId);
+  List<Task> findByProjectId(String projectId);
 
-    boolean existsByColumnIdAndPosition(
-        String columnId,
-        Integer position
-    );
+  List<Task> findByColumnId(String columnId);
+
+  boolean existsByColumnIdAndPosition(String columnId, Integer position);
 }

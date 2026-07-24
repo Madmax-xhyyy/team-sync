@@ -54,6 +54,15 @@ public class PermissionService {
 
   }
 
+  public void requireTaskAssignmentPermission(OrganizationMember member) {
+
+    if (member.getRole() == OrganizationRole.GUEST) {
+        throw new ForbiddenException(
+                "Guests cannot assign tasks."
+        );
+    }
+  }
+
   public void requireProjectViewPermission(OrganizationMember member) {
 
     if (member.getRole() == OrganizationRole.GUEST) {

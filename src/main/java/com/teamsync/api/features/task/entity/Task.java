@@ -3,6 +3,7 @@ package com.teamsync.api.features.task.entity;
 import com.teamsync.api.common.domain.AuditableEntity;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 
@@ -26,6 +27,7 @@ public class Task extends AuditableEntity {
 
     private TaskType type;
 
+    @Field("assignee_id")
     private String assigneeId;
 
     private String reporterId;

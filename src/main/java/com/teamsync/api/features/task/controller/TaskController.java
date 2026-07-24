@@ -2,7 +2,9 @@ package com.teamsync.api.features.task.controller;
 
 import com.teamsync.api.common.response.ApiResponse;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
+import com.teamsync.api.features.task.dto.request.AssignTaskRequest;
 import com.teamsync.api.features.task.dto.request.CreateTaskRequest;
+import com.teamsync.api.features.task.dto.request.MoveTaskRequest;
 import com.teamsync.api.features.task.dto.request.UpdateTaskRequest;
 import com.teamsync.api.features.task.dto.response.TaskResponse;
 import com.teamsync.api.features.task.service.TaskService;
@@ -118,4 +120,82 @@ public class TaskController {
           .build();
   }
 
+  @PatchMapping("/{taskId}/move")
+  public ApiResponse<TaskResponse> moveTask(
+          @PathVariable String organizationId,
+          @PathVariable String projectId,
+          @PathVariable String columnId,
+          @PathVariable String taskId,
+          @Valid @RequestBody MoveTaskRequest request,
+          @AuthenticationPrincipal CustomUserDetails currentUser
+  ) {
+
+      TaskResponse response =
+              taskService.moveTask(
+                      organizationId,
+                      projectId,
+                      columnId,
+                      taskId,
+                      currentUser.getUserId(),
+                      request
+              );
+
+      return ApiResponse.<TaskResponse>builder()
+              .success(true)
+              .message("Task moved successfully.")
+              .data(response)
+              .build();
+  }
+
+  @PatchMapping("/{taskId}/assignee")
+  public ApiResponse<TaskResponse> assignTask(
+          @PathVariable String organizationId,
+          @PathVariable String projectId,
+          @PathVariable String columnId,
+          @PathVariable String taskId,
+          @Valid @RequestBody AssignTaskRequest request,
+          @AuthenticationPrincipal CustomUserDetails currentUser
+  ) {
+
+  TaskResponse response =
+          taskService.assignTask(
+                  organizationId,
+                  projectId,
+                  columnId,
+                  taskId,
+                  currentUser.getUserId(),
+                  request
+          );
+
+  return ApiResponse.<TaskResponse>builder()
+          .success(true)
+          .message("Task assigned successfully.")
+          .data(response)
+          .build();
+  }
+
+  @DeleteMapping("/{taskId}/assignee")
+  public ApiResponse<TaskResponse> unassignTask(
+          @PathVariable String organizationId,
+          @PathVariable String projectId,
+          @PathVariable String columnId,
+          @PathVariable String taskId,
+          @AuthenticationPrincipal CustomUserDetails currentUser
+  ) {
+
+      TaskResponse response =
+              taskService.unassignTask(
+                      organizationId,
+                      projectId,
+                      columnId,
+                      taskId,
+                      currentUser.getUserId()
+              );
+
+      return ApiResponse.<TaskResponse>builder()
+              .success(true)
+              .message("Task unassigned successfully.")
+              .data(response)
+              .build();
+  }
 }

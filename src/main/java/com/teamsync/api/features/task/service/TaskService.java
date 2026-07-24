@@ -1,6 +1,8 @@
 package com.teamsync.api.features.task.service;
 
+import com.teamsync.api.features.task.dto.request.AssignTaskRequest;
 import com.teamsync.api.features.task.dto.request.CreateTaskRequest;
+import com.teamsync.api.features.task.dto.request.MoveTaskRequest;
 import com.teamsync.api.features.task.dto.request.UpdateTaskRequest;
 import com.teamsync.api.features.task.dto.response.TaskResponse;
 
@@ -33,6 +35,32 @@ public interface TaskService {
   );
 
   void deleteTask(
+        String organizationId,
+        String projectId,
+        String columnId,
+        String taskId,
+        String currentUserId
+  );
+
+  TaskResponse moveTask(
+        String organizationId,
+        String projectId,
+        String sourceColumnId,
+        String taskId,
+        String currentUserId,
+        MoveTaskRequest request
+  );
+
+  TaskResponse assignTask(
+        String organizationId,
+        String projectId,
+        String columnId,
+        String taskId,
+        String currentUserId,
+        AssignTaskRequest request
+  );
+
+  TaskResponse unassignTask(
         String organizationId,
         String projectId,
         String columnId,
