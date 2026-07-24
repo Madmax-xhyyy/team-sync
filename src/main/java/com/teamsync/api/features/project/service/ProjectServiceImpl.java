@@ -28,7 +28,7 @@ public class ProjectServiceImpl implements ProjectService {
       String userId,
       CreateProjectRequest request) {
 
-    authorizationService.requireMember(
+    authorizationService.requireOrganizationAccess(
         organizationId,
         userId);
 
@@ -50,7 +50,7 @@ public class ProjectServiceImpl implements ProjectService {
       String organizationId,
       String userId) {
 
-    authorizationService.requireMember(
+    authorizationService.requireOrganizationAccess(
         organizationId,
         userId);
 

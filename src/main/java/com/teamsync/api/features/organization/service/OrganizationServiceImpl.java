@@ -74,7 +74,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       String organizationId,
       String userId) {
 
-    authorizationService.requireMember(
+    authorizationService.requireOrganizationAccess(
         organizationId,
         userId);
 

@@ -1,9 +1,9 @@
 package com.teamsync.api.features.organizationmember.entity;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.teamsync.api.common.domain.AuditableEntity;
 import com.teamsync.api.features.organization.entity.OrganizationRole;
 
 import java.time.Instant;
@@ -14,10 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrganizationMember {
-
-  @Id
-  private String id;
+public class OrganizationMember extends AuditableEntity {
 
   private String organizationId;
 
@@ -26,5 +23,21 @@ public class OrganizationMember {
   private OrganizationRole role;
 
   private Instant joinedAt;
+
+  public boolean isOwner() {
+    return role == OrganizationRole.OWNER;
+  }
+
+  public boolean isAdmin() {
+      return role == OrganizationRole.ADMIN;
+  }
+
+  public boolean isMember() {
+      return role == OrganizationRole.MEMBER;
+  }
+
+  public boolean isGuest() {
+      return role == OrganizationRole.GUEST;
+  }
 
 }

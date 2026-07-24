@@ -6,6 +6,8 @@ public enum OrganizationRole {
 
   ADMIN,
 
-  MEMBER
+  MEMBER,
+
+  GUEST
 
 }
