@@ -7,6 +7,9 @@ import com.teamsync.api.features.organizationmember.dto.response.MemberResponse;
 import com.teamsync.api.features.organizationmember.service.OrganizationMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +39,25 @@ public class OrganizationMemberController {
                 .message("Member added successfully.")
                 .data(response)
                 .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<MemberResponse>> getMembers(
+            @PathVariable String organizationId,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+
+    List<MemberResponse> response =
+            organizationMemberService.getMembers(
+                    organizationId,
+                    currentUser.getUserId()
+            );
+
+    return ApiResponse.<List<MemberResponse>>builder()
+            .success(true)
+            .message("Members retrieved successfully.")
+            .data(response)
+            .build();
     }
 
 }

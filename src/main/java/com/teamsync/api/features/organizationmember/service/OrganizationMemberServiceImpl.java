@@ -1,6 +1,8 @@
 package com.teamsync.api.features.organizationmember.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -89,14 +91,46 @@ public class OrganizationMemberServiceImpl
     }
 
     @Override
-    public List<MemberResponse> getMembers(
-            String organizationId,
-            String currentUserId
-    ) {
-        throw new UnsupportedOperationException(
-                "Not implemented yet."
-        );
-    }
+public List<MemberResponse> getMembers(
+        String organizationId,
+        String currentUserId
+) {
+
+    organizationAuthorizationService.requireOrganizationAccess(
+            organizationId,
+            currentUserId
+    );
+
+    List<OrganizationMember> members =
+            organizationMemberRepository.findByOrganizationId(
+                    organizationId
+            );
+
+    List<String> userIds =
+            members.stream()
+                    .map(OrganizationMember::getUserId)
+                    .toList();
+
+    List<User> users =
+            userRepository.findByIdIn(userIds);
+
+    Map<String, User> userMap =
+            users.stream()
+                    .collect(Collectors.toMap(
+                            User::getId,
+                            user -> user
+                    ));
+
+    return members.stream()
+            .map(member ->
+                    organizationMemberMapper.toResponse(
+                            member,
+                            userMap.get(member.getUserId())
+                    )
+            )
+            .toList();
+
+}
 
     @Override
     public MemberResponse updateRole(

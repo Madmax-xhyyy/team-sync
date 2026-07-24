@@ -11,7 +11,7 @@ public interface OrganizationMemberRepository
                 extends MongoRepository<OrganizationMember, String> {
         List<OrganizationMember> findByUserId(String userId);
 
-        Optional<OrganizationMember> findByOrganizationIdAndUserId(
-                        String organizationId,
-                        String userId);
+        Optional<OrganizationMember> findByOrganizationIdAndUserId(String organizationId, String userId);
+
+        List<OrganizationMember> findByOrganizationId(String organizationId);
 }
