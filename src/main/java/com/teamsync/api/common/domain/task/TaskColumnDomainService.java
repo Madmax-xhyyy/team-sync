@@ -14,12 +14,12 @@ public class TaskColumnDomainService {
 
     public TaskColumn getById(String columnId) {
 
-        return taskColumnRepository.findById(columnId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Task column not found."
-                        )
-                );
+      return taskColumnRepository.findById(columnId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Task column not found."
+                    )
+            );
     }
 
 }

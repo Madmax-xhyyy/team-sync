@@ -13,5 +13,4 @@ public class TeamsyncApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TeamsyncApiApplication.class, args);
 	}
-
 }

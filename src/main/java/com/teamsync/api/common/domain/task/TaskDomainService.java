@@ -14,12 +14,12 @@ public class TaskDomainService {
 
     public Task getById(String taskId) {
 
-        return taskRepository.findById(taskId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Task not found."
-                        )
-                );
+      return taskRepository.findById(taskId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Task not found."
+                    )
+            );
     }
 
 }

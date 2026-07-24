@@ -15,11 +15,7 @@ public class ProjectAuthorizationService {
   private final ProjectDomainService projectDomainService;
   private final PermissionService permissionService;
 
-  public Project requireProjectAccess(
-        String organizationId,
-        String projectId,
-        String userId
-) {
+  public Project requireProjectAccess(String organizationId, String projectId, String userId) {
 
     OrganizationMember member =
             organizationAuthorizationService.requireOrganizationAccess(
@@ -32,11 +28,11 @@ public class ProjectAuthorizationService {
     Project project = projectDomainService.getById(projectId);
 
     if (!project.getOrganizationId().equals(organizationId)) {
-        throw new ForbiddenException(
-                "Project does not belong to this organization."
-        );
+      throw new ForbiddenException(
+              "Project does not belong to this organization."
+      );
     }
 
     return project;
-}
+  }
 }

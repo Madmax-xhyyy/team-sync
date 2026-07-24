@@ -10,24 +10,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrganizationAuthorizationService {
 
-    private final OrganizationMemberRepository organizationMemberRepository;
+  private final OrganizationMemberRepository organizationMemberRepository;
 
-    public OrganizationMember requireOrganizationAccess(
-            String organizationId,
-            String userId
-    ) {
+  public OrganizationMember requireOrganizationAccess(String organizationId, String userId) {
 
-        return organizationMemberRepository
-                .findByOrganizationIdAndUserId(
-                        organizationId,
-                        userId
-                )
-                .orElseThrow(() ->
-                        new ForbiddenException(
-                                "You are not a member of this organization."
-                        )
-                );
+    return organizationMemberRepository
+          .findByOrganizationIdAndUserId(organizationId, userId)
+          .orElseThrow(() -> new ForbiddenException("You are not a member of this organization."));
 
-    }
+  }
 
 }

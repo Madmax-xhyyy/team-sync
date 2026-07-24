@@ -10,13 +10,13 @@ import java.util.List;
 @Builder
 public class ApiError {
 
-    private boolean success;
+  private boolean success;
 
-    private String message;
+  private String message;
 
-    private List<ValidationError> errors;
+  private List<ValidationError> errors;
 
-    @Builder.Default
-    private Instant timestamp = Instant.now();
+  @Builder.Default
+  private Instant timestamp = Instant.now();
 
 }

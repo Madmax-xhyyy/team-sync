@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 public class MongodbConfig {
 
   private static final Logger log = LoggerFactory.getLogger(MongodbConfig.class);
-
   private final MongoTemplate mongoTemplate;
 
   public MongodbConfig(MongoTemplate mongoTemplate) {

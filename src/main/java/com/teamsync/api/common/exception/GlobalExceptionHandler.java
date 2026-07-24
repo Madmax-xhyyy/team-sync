@@ -16,74 +16,69 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    public ApiResponse<String> handleException(Exception ex) {
+  @ExceptionHandler(Exception.class)
+  public ApiResponse<String> handleException(Exception ex) {
 
-        return ApiResponse.<String>builder()
-                .success(false)
-                .message(ex.getMessage())
-                .build();
+    return ApiResponse.<String>builder()
+          .success(false)
+          .message(ex.getMessage())
+          .build();
 
-    }
+  }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
 
-        ApiError error = ApiError.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .build();
+    ApiError error = ApiError.builder()
+          .success(false)
+          .message(ex.getMessage())
+          .build();
 
-        return ResponseEntity.badRequest().body(error);
-    }
+    return ResponseEntity.badRequest().body(error);
+  }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(
-            MethodArgumentNotValidException ex
-    ) {
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
 
-        List<ValidationError> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> new ValidationError(
-                        error.getField(),
-                        error.getDefaultMessage()))
-                .toList();
+    List<ValidationError> errors = ex.getBindingResult()
+          .getFieldErrors()
+          .stream()
+          .map(error -> new ValidationError(
+                  error.getField(),
+                  error.getDefaultMessage()))
+          .toList();
 
-        ApiError apiError = ApiError.builder()
-                .success(false)
-                .message("Validation failed.")
-                .errors(errors)
-                .build();
+    ApiError apiError = ApiError.builder()
+          .success(false)
+          .message("Validation failed.")
+          .errors(errors)
+          .build();
 
-        return ResponseEntity.badRequest().body(apiError);
-    }
+    return ResponseEntity.badRequest().body(apiError);
+  }
 
-    @ExceptionHandler(BadCredentialsException.class)
-        public ResponseEntity<ApiError> handleBadCredentials(
-                BadCredentialsException ex
-        ) {
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
 
-        ApiError error = ApiError.builder()
-                .success(false)
-                .message("Invalid email or password.")
-                .build();
+    ApiError error = ApiError.builder()
+          .success(false)
+          .message("Invalid email or password.")
+          .build();
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(error);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(error);
 
-        }
+  }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex) {
+  @ExceptionHandler(NotFoundException.class)
+  public ResponseEntity<ApiError> handleNotFound(NotFoundException ex) {
 
-        ApiError error = ApiError.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .build();
+    ApiError error = ApiError.builder()
+          .success(false)
+          .message(ex.getMessage())
+          .build();
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(error);
-    }
-
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(error);
+  }
 }

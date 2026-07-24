@@ -10,36 +10,33 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TaskAuthorizationService {
 
-    private final TaskColumnAuthorizationService taskColumnAuthorizationService;
-    private final TaskDomainService taskDomainService;
+  private final TaskColumnAuthorizationService taskColumnAuthorizationService;
+  private final TaskDomainService taskDomainService;
 
-    public Task requireTaskMember(
-            String organizationId,
-            String projectId,
-            String columnId,
-            String taskId,
-            String userId
-    ) {
+  public Task requireTaskMember(
+          String organizationId,
+          String projectId,
+          String columnId,
+          String taskId,
+          String userId) {
 
-        taskColumnAuthorizationService.requireTaskColumnAccess(
-                organizationId,
-                projectId,
-                columnId,
-                userId
-        );
+      taskColumnAuthorizationService.requireTaskColumnAccess(
+              organizationId,
+              projectId,
+              columnId,
+              userId
+      );
 
-        Task task = taskDomainService.getById(taskId);
+      Task task = taskDomainService.getById(taskId);
 
-        if (!task.getColumnId().equals(columnId)) {
+      if (!task.getColumnId().equals(columnId)) {
 
-            throw new ForbiddenException(
-                    "Task does not belong to this column."
-            );
+          throw new ForbiddenException(
+                  "Task does not belong to this column."
+          );
 
-        }
-
-        return task;
-
-    }
+      }
+      return task;
+  }
 
 }
