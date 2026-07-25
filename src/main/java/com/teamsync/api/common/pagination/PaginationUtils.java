@@ -10,7 +10,7 @@ public final class PaginationUtils {
   }
 
   public static Pageable toPageable(
-      PaginationRequest pagination) {
+      PageQuery pagination) {
 
     Sort.Direction direction = pagination.directionOrDefault() == SortDirection.ASC
         ? Sort.Direction.ASC

@@ -3,7 +3,7 @@ package com.teamsync.api.common.pagination;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-public record PaginationRequest(
+public record PageQuery(
 
     @Min(0) Integer page,
 

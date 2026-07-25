@@ -1,9 +1,11 @@
 package com.teamsync.api.features.activity.controller;
 
+import com.teamsync.api.common.pagination.PageQuery;
 import com.teamsync.api.common.response.ApiResponse;
 import com.teamsync.api.features.activity.dto.response.ActivityResponse;
 import com.teamsync.api.features.activity.service.ActivityService;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ public class ActivityController {
   @GetMapping("/activities")
   public ApiResponse<List<ActivityResponse>> getOrganizationActivities(
       @PathVariable String organizationId,
+      @ModelAttribute PageQuery pageQuery,
       @AuthenticationPrincipal CustomUserDetails currentUser) {
 
     List<ActivityResponse> response = activityService.getOrganizationActivities(
@@ -38,6 +41,7 @@ public class ActivityController {
   public ApiResponse<List<ActivityResponse>> getProjectActivities(
       @PathVariable String organizationId,
       @PathVariable String projectId,
+      @ModelAttribute PageQuery pageQuery,
       @AuthenticationPrincipal CustomUserDetails currentUser) {
 
     List<ActivityResponse> response = activityService.getProjectActivities(
@@ -59,6 +63,7 @@ public class ActivityController {
       @PathVariable String projectId,
       @PathVariable String columnId,
       @PathVariable String taskId,
+      @ModelAttribute PageQuery pageQuery,
       @AuthenticationPrincipal CustomUserDetails currentUser) {
 
     List<ActivityResponse> response = activityService.getTaskActivities(

@@ -1,12 +1,13 @@
 package com.teamsync.api.features.project.controller;
 
 import com.teamsync.api.common.pagination.PageResponse;
-import com.teamsync.api.common.pagination.PaginationRequest;
+import com.teamsync.api.common.pagination.PageQuery;
 import com.teamsync.api.common.response.ApiResponse;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
 import com.teamsync.api.features.project.dto.request.CreateProjectRequest;
 import com.teamsync.api.features.project.dto.response.ProjectResponse;
 import com.teamsync.api.features.project.service.ProjectService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,13 +43,13 @@ public class ProjectController {
   @GetMapping
   public ApiResponse<PageResponse<ProjectResponse>> getProjects(
       @PathVariable String organizationId,
-      @Valid PaginationRequest pagination,
+      @ModelAttribute PageQuery pageQuery,
       @AuthenticationPrincipal CustomUserDetails currentUser) {
 
     PageResponse<ProjectResponse> response = projectService.getProjects(
         organizationId,
         currentUser.getUserId(),
-        pagination);
+        pageQuery);
 
     return ApiResponse.<PageResponse<ProjectResponse>>builder()
         .success(true)
