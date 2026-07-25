@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Projects", description = "Manage organization projects")
 @RestController
 @RequestMapping("/api/v1/organizations/{organizationId}/projects")
 @RequiredArgsConstructor

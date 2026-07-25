@@ -13,28 +13,25 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardController {
 
-    private final BoardService boardService;
+  private final BoardService boardService;
 
-    @GetMapping
-    public ApiResponse<BoardResponse> getBoard(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @AuthenticationPrincipal CustomUserDetails currentUser
-    ) {
+  @GetMapping
+  public ApiResponse<BoardResponse> getBoard(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        BoardResponse response =
-                boardService.getBoard(
-                        organizationId,
-                        projectId,
-                        currentUser.getUserId()
-                );
+    BoardResponse response = boardService.getBoard(
+        organizationId,
+        projectId,
+        currentUser.getUserId());
 
-        return ApiResponse.<BoardResponse>builder()
-                .success(true)
-                .message("Board retrieved successfully.")
-                .data(response)
-                .build();
+    return ApiResponse.<BoardResponse>builder()
+        .success(true)
+        .message("Board retrieved successfully.")
+        .data(response)
+        .build();
 
-    }
+  }
 
 }

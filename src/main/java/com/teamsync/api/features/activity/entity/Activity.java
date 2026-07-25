@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Getter
 @Setter
@@ -17,12 +18,15 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "activities")
 public class Activity extends AuditableEntity {
 
+  @Indexed
   @Field("organization_id")
   private String organizationId;
 
+  @Indexed
   @Field("project_id")
   private String projectId;
 
+  @Indexed
   @Field("task_id")
   private String taskId;
 
