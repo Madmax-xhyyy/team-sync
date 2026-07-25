@@ -5,6 +5,9 @@ import com.teamsync.api.common.security.OrganizationAuthorizationService;
 import com.teamsync.api.common.security.PermissionService;
 import com.teamsync.api.common.security.TaskAuthorizationService;
 import com.teamsync.api.common.security.TaskColumnAuthorizationService;
+import com.teamsync.api.features.activity.entity.ActivityAction;
+import com.teamsync.api.features.activity.entity.ActivityEntityType;
+import com.teamsync.api.features.activity.service.ActivityService;
 import com.teamsync.api.features.organization.entity.OrganizationRole;
 import com.teamsync.api.features.organizationmember.entity.OrganizationMember;
 import com.teamsync.api.features.organizationmember.repository.OrganizationMemberRepository;
@@ -27,369 +30,335 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-  private final TaskRepository taskRepository;
-  private final TaskMapper taskMapper;
-  private final TaskColumnAuthorizationService taskColumnAuthorizationService;
-  private final OrganizationAuthorizationService organizationAuthorizationService;
-  private final TaskAuthorizationService taskAuthorizationService;
-  private final PermissionService permissionService;
-  private final OrganizationMemberRepository organizationMemberRepository;
-
-  @Override
-  public TaskResponse createTask(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String userId,
-          CreateTaskRequest request
-  ) {
-
-      taskColumnAuthorizationService.requireTaskColumnAccess(
-              organizationId,
-              projectId,
-              columnId,
-              userId
-      );
-
-      Integer position =
-              (int) taskRepository.countByColumnId(columnId) + 1;
-
-      Task task = taskMapper.toEntity(
-              request,
-              projectId,
-              columnId,
-              userId,
-              position
-      );
-
-      Task savedTask = taskRepository.save(task);
-
-      return taskMapper.toResponse(savedTask);
-
-  }
-
-  @Override
-  public List<TaskResponse> getTasks(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String userId
-  ) {
-
-      taskColumnAuthorizationService.requireTaskColumnAccess(
-              organizationId,
-              projectId,
-              columnId,
-              userId
-      );
-
-      return taskRepository
-              .findByColumnIdOrderByPositionAsc(columnId)
-              .stream()
-              .map(taskMapper::toResponse)
-              .toList();
-
-  }
-
-  @Override
-  @Transactional
-  public TaskResponse updateTask(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String currentUserId,
-          UpdateTaskRequest request
-  ) {
-
-  // Verify organization membership
-  OrganizationMember currentMember =
-          organizationAuthorizationService.requireOrganizationAccess(
-                  organizationId,
-                  currentUserId
-          );
-
-  // Verify permission
-  permissionService.requireTaskUpdatePermission(currentMember);
-
-  // Verify task belongs to the project and organization
-  Task task =
-          taskAuthorizationService.requireTaskAccess(
-                  organizationId,
-                  projectId,
-                  columnId,
-                  taskId,
-                  currentUserId
-          );
-
-  // Partial update
-  if (request.title() != null) {
-          task.setTitle(request.title());
-  }
-
-  if (request.description() != null) {
-          task.setDescription(request.description());
-  }
-
-  if (request.priority() != null) {
-          task.setPriority(request.priority());
-  }
-
-  if (request.dueDate() != null) {
-          task.setDueDate(request.dueDate());
-  }
-
-  Task savedTask = taskRepository.save(task);
-
-  return taskMapper.toResponse(savedTask);
-  }
-
-  @Override
-  @Transactional
-  public void deleteTask(
-        String organizationId,
-        String projectId,
-        String columnId,
-        String taskId,
-        String currentUserId
-  ) {
-
-    // Verify organization membership
-    OrganizationMember currentMember =
-            organizationAuthorizationService
-                    .requireOrganizationAccess(
-                            organizationId,
-                            currentUserId
-                    );
-
-    // Verify permission
-    permissionService.requireTaskDeletePermission(currentMember);
-
-    // Verify task access
-    Task task =
-            taskAuthorizationService.requireTaskAccess(
-                    organizationId,
-                    projectId,
-                    columnId,
-                    taskId,
-                    currentUserId
-            );
-
-    taskRepository.delete(task);
-
-  }
-  //HELPER
-  private void reorderTasks(List<Task> tasks) {
-    for (int i = 0; i < tasks.size(); i++) {
-        tasks.get(i).setPosition(i);
-    }
-  }
-  // HELPER
-  private void insertTask(List<Task> tasks, Task task, int position) {
-    position = Math.max(0, position);
-    position = Math.min(position, tasks.size());
-
-    tasks.add(position, task);
-  }
-
-  @Override
-  @Transactional
-  public TaskResponse moveTask(
-          String organizationId,
-          String projectId,
-          String sourceColumnId,
-          String taskId,
-          String currentUserId,
-          MoveTaskRequest request
-  ) {
-
-      // Verify organization membership
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
-
-      // Verify permission
-      permissionService.requireTaskUpdatePermission(currentMember);
-
-      // Verify source task access
-      Task task =
-              taskAuthorizationService.requireTaskAccess(
-                      organizationId,
-                      projectId,
-                      sourceColumnId,
-                      taskId,
-                      currentUserId
-              );
-
-      // Verify target column belongs to the same project
-      taskColumnAuthorizationService.requireTaskColumnAccess(
-              organizationId,
-              projectId,
-              request.targetColumnId(),
-              currentUserId
-      );
-
-      List<Task> sourceTasks =
-              taskRepository.findByColumnIdOrderByPositionAsc(
-                      sourceColumnId
-              );
-
-      boolean sameColumn =
-              sourceColumnId.equals(request.targetColumnId());
-
-      if (sameColumn) {
-
-          // Remove the task from its current position
-          sourceTasks.removeIf(t -> t.getId().equals(task.getId()));
-
-          // Insert at the new position
-          insertTask(
-                  sourceTasks,
-                  task,
-                  request.position()
-          );
-
-          // Recalculate positions
-          reorderTasks(sourceTasks);
-
-          // Save updated order
-          taskRepository.saveAll(sourceTasks);
-
-      } else {
-
-          List<Task> targetTasks =
-                  taskRepository.findByColumnIdOrderByPositionAsc(
-                          request.targetColumnId()
-                  );
-
-          // Remove from source column
-          sourceTasks.removeIf(t -> t.getId().equals(task.getId()));
-          reorderTasks(sourceTasks);
-
-          // Move task to target column
-          task.setColumnId(request.targetColumnId());
-
-          // Insert into target column
-          insertTask(
-                  targetTasks,
-                  task,
-                  request.position()
-          );
-
-          // Recalculate target positions
-          reorderTasks(targetTasks);
-
-          // Persist both columns
-          taskRepository.saveAll(sourceTasks);
-          taskRepository.saveAll(targetTasks);
-
-      }
-
-      return taskMapper.toResponse(task);
-
-  }
-
-  @Override
-  @Transactional
-  public TaskResponse assignTask(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String currentUserId,
-          AssignTaskRequest request
-  ) {
-
-      // Verify requester belongs to organization
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
-
-      // Verify permission
-      permissionService.requireTaskAssignmentPermission(currentMember);
-
-      // Verify task access
-      Task task =
-              taskAuthorizationService.requireTaskAccess(
-                      organizationId,
-                      projectId,
-                      columnId,
-                      taskId,
-                      currentUserId
-              );
-
-      // Verify assignee belongs to organization
-      OrganizationMember assigneeMember =
-              organizationMemberRepository
-                      .findByOrganizationIdAndUserId(
-                              organizationId,
-                              request.userId()
-                      )
-                      .orElseThrow(() ->
-                              new BadRequestException(
-                                      "User is not a member of this organization."
-                              )
-                      );
-
-      // Prevent assigning to guests (optional)
-      if (assigneeMember.getRole() == OrganizationRole.GUEST) {
-          throw new BadRequestException(
-                  "Guests cannot be assigned to tasks."
-          );
-      }
-
-      // Prevent duplicate assignment
-      if (request.userId().equals(task.getAssigneeId())) {
-          throw new BadRequestException(
-                  "Task is already assigned to this user."
-          );
-      }
-
-      // Assign task
-      task.setAssigneeId(assigneeMember.getUserId());
-
-      Task savedTask = taskRepository.save(task);
-
-      return taskMapper.toResponse(savedTask);
-  }
-
-  @Override
-  @Transactional
-  public TaskResponse unassignTask(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String currentUserId
-  ) {
-
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
-
-      permissionService.requireTaskAssignmentPermission(currentMember);
-
-      Task task =
-              taskAuthorizationService.requireTaskAccess(
-                      organizationId,
-                      projectId,
-                      columnId,
-                      taskId,
-                      currentUserId
-              );
-
-      task.setAssigneeId(null);
-
-      Task savedTask =
-              taskRepository.save(task);
-
-      return taskMapper.toResponse(savedTask);
-
-  }
+        private final TaskRepository taskRepository;
+        private final TaskMapper taskMapper;
+        private final TaskColumnAuthorizationService taskColumnAuthorizationService;
+        private final OrganizationAuthorizationService organizationAuthorizationService;
+        private final TaskAuthorizationService taskAuthorizationService;
+        private final PermissionService permissionService;
+        private final OrganizationMemberRepository organizationMemberRepository;
+        private final ActivityService activityService;
+
+        @Override
+        public TaskResponse createTask(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String userId,
+                        CreateTaskRequest request) {
+
+                taskColumnAuthorizationService.requireTaskColumnAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                userId);
+
+                Integer position = (int) taskRepository.countByColumnId(columnId) + 1;
+
+                Task task = taskMapper.toEntity(
+                                request,
+                                projectId,
+                                columnId,
+                                userId,
+                                position);
+
+                Task savedTask = taskRepository.save(task);
+
+                activityService.logActivity(
+                                organizationId,
+                                projectId,
+                                savedTask.getId(),
+                                userId,
+                                ActivityEntityType.TASK,
+                                ActivityAction.CREATED,
+                                savedTask.getId(),
+                                "Created task \"" + savedTask.getTitle() + "\"");
+
+                return taskMapper.toResponse(savedTask);
+
+        }
+
+        @Override
+        public List<TaskResponse> getTasks(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String userId) {
+
+                taskColumnAuthorizationService.requireTaskColumnAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                userId);
+
+                return taskRepository
+                                .findByColumnIdOrderByPositionAsc(columnId)
+                                .stream()
+                                .map(taskMapper::toResponse)
+                                .toList();
+
+        }
+
+        @Override
+        @Transactional
+        public TaskResponse updateTask(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String taskId,
+                        String currentUserId,
+                        UpdateTaskRequest request) {
+
+                // Verify organization membership
+                OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+                                organizationId,
+                                currentUserId);
+
+                // Verify permission
+                permissionService.requireTaskUpdatePermission(currentMember);
+
+                // Verify task belongs to the project and organization
+                Task task = taskAuthorizationService.requireTaskAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                taskId,
+                                currentUserId);
+
+                // Partial update
+                if (request.title() != null) {
+                        task.setTitle(request.title());
+                }
+
+                if (request.description() != null) {
+                        task.setDescription(request.description());
+                }
+
+                if (request.priority() != null) {
+                        task.setPriority(request.priority());
+                }
+
+                if (request.dueDate() != null) {
+                        task.setDueDate(request.dueDate());
+                }
+
+                Task savedTask = taskRepository.save(task);
+
+                return taskMapper.toResponse(savedTask);
+        }
+
+        @Override
+        @Transactional
+        public void deleteTask(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String taskId,
+                        String currentUserId) {
+
+                // Verify organization membership
+                OrganizationMember currentMember = organizationAuthorizationService
+                                .requireOrganizationAccess(
+                                                organizationId,
+                                                currentUserId);
+
+                // Verify permission
+                permissionService.requireTaskDeletePermission(currentMember);
+
+                // Verify task access
+                Task task = taskAuthorizationService.requireTaskAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                taskId,
+                                currentUserId);
+
+                taskRepository.delete(task);
+
+        }
+
+        // HELPER
+        private void reorderTasks(List<Task> tasks) {
+                for (int i = 0; i < tasks.size(); i++) {
+                        tasks.get(i).setPosition(i);
+                }
+        }
+
+        // HELPER
+        private void insertTask(List<Task> tasks, Task task, int position) {
+                position = Math.max(0, position);
+                position = Math.min(position, tasks.size());
+
+                tasks.add(position, task);
+        }
+
+        @Override
+        @Transactional
+        public TaskResponse moveTask(
+                        String organizationId,
+                        String projectId,
+                        String sourceColumnId,
+                        String taskId,
+                        String currentUserId,
+                        MoveTaskRequest request) {
+
+                // Verify organization membership
+                OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+                                organizationId,
+                                currentUserId);
+
+                // Verify permission
+                permissionService.requireTaskUpdatePermission(currentMember);
+
+                // Verify source task access
+                Task task = taskAuthorizationService.requireTaskAccess(
+                                organizationId,
+                                projectId,
+                                sourceColumnId,
+                                taskId,
+                                currentUserId);
+
+                // Verify target column belongs to the same project
+                taskColumnAuthorizationService.requireTaskColumnAccess(
+                                organizationId,
+                                projectId,
+                                request.targetColumnId(),
+                                currentUserId);
+
+                List<Task> sourceTasks = taskRepository.findByColumnIdOrderByPositionAsc(
+                                sourceColumnId);
+
+                boolean sameColumn = sourceColumnId.equals(request.targetColumnId());
+
+                if (sameColumn) {
+
+                        // Remove the task from its current position
+                        sourceTasks.removeIf(t -> t.getId().equals(task.getId()));
+
+                        // Insert at the new position
+                        insertTask(
+                                        sourceTasks,
+                                        task,
+                                        request.position());
+
+                        // Recalculate positions
+                        reorderTasks(sourceTasks);
+
+                        // Save updated order
+                        taskRepository.saveAll(sourceTasks);
+
+                } else {
+
+                        List<Task> targetTasks = taskRepository.findByColumnIdOrderByPositionAsc(
+                                        request.targetColumnId());
+
+                        // Remove from source column
+                        sourceTasks.removeIf(t -> t.getId().equals(task.getId()));
+                        reorderTasks(sourceTasks);
+
+                        // Move task to target column
+                        task.setColumnId(request.targetColumnId());
+
+                        // Insert into target column
+                        insertTask(
+                                        targetTasks,
+                                        task,
+                                        request.position());
+
+                        // Recalculate target positions
+                        reorderTasks(targetTasks);
+
+                        // Persist both columns
+                        taskRepository.saveAll(sourceTasks);
+                        taskRepository.saveAll(targetTasks);
+
+                }
+
+                return taskMapper.toResponse(task);
+
+        }
+
+        @Override
+        @Transactional
+        public TaskResponse assignTask(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String taskId,
+                        String currentUserId,
+                        AssignTaskRequest request) {
+
+                // Verify requester belongs to organization
+                OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+                                organizationId,
+                                currentUserId);
+
+                // Verify permission
+                permissionService.requireTaskAssignmentPermission(currentMember);
+
+                // Verify task access
+                Task task = taskAuthorizationService.requireTaskAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                taskId,
+                                currentUserId);
+
+                // Verify assignee belongs to organization
+                OrganizationMember assigneeMember = organizationMemberRepository
+                                .findByOrganizationIdAndUserId(
+                                                organizationId,
+                                                request.userId())
+                                .orElseThrow(() -> new BadRequestException(
+                                                "User is not a member of this organization."));
+
+                // Prevent assigning to guests (optional)
+                if (assigneeMember.getRole() == OrganizationRole.GUEST) {
+                        throw new BadRequestException(
+                                        "Guests cannot be assigned to tasks.");
+                }
+
+                // Prevent duplicate assignment
+                if (request.userId().equals(task.getAssigneeId())) {
+                        throw new BadRequestException(
+                                        "Task is already assigned to this user.");
+                }
+
+                // Assign task
+                task.setAssigneeId(assigneeMember.getUserId());
+
+                Task savedTask = taskRepository.save(task);
+
+                return taskMapper.toResponse(savedTask);
+        }
+
+        @Override
+        @Transactional
+        public TaskResponse unassignTask(
+                        String organizationId,
+                        String projectId,
+                        String columnId,
+                        String taskId,
+                        String currentUserId) {
+
+                OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+                                organizationId,
+                                currentUserId);
+
+                permissionService.requireTaskAssignmentPermission(currentMember);
+
+                Task task = taskAuthorizationService.requireTaskAccess(
+                                organizationId,
+                                projectId,
+                                columnId,
+                                taskId,
+                                currentUserId);
+
+                task.setAssigneeId(null);
+
+                Task savedTask = taskRepository.save(task);
+
+                return taskMapper.toResponse(savedTask);
+
+        }
 }

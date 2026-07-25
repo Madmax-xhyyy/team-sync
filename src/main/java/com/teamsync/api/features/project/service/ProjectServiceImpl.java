@@ -1,6 +1,9 @@
 package com.teamsync.api.features.project.service;
 
 import com.teamsync.api.common.security.OrganizationAuthorizationService;
+import com.teamsync.api.features.activity.entity.ActivityAction;
+import com.teamsync.api.features.activity.entity.ActivityEntityType;
+import com.teamsync.api.features.activity.service.ActivityService;
 import com.teamsync.api.features.project.dto.request.CreateProjectRequest;
 import com.teamsync.api.features.project.dto.response.ProjectResponse;
 import com.teamsync.api.features.project.entity.Project;
@@ -21,6 +24,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ProjectMapper projectMapper;
   private final OrganizationAuthorizationService authorizationService;
   private final TaskColumnService taskColumnService;
+  private final ActivityService activityService;
 
   @Override
   public ProjectResponse createProject(
@@ -38,6 +42,16 @@ public class ProjectServiceImpl implements ProjectService {
         userId);
 
     Project savedProject = projectRepository.save(project);
+
+    activityService.logActivity(
+        organizationId,
+        savedProject.getId(),
+        null,
+        userId,
+        ActivityEntityType.PROJECT,
+        ActivityAction.CREATED,
+        savedProject.getId(),
+        "Created project \"" + savedProject.getName() + "\"");
 
     taskColumnService.createDefaultColumns(
         savedProject.getId());

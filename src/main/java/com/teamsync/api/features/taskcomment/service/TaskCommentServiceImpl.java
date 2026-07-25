@@ -9,6 +9,9 @@ import com.teamsync.api.common.security.OrganizationAuthorizationService;
 import com.teamsync.api.common.security.PermissionService;
 import com.teamsync.api.common.security.TaskAuthorizationService;
 import com.teamsync.api.common.security.TaskCommentAuthorizationService;
+import com.teamsync.api.features.activity.entity.ActivityAction;
+import com.teamsync.api.features.activity.entity.ActivityEntityType;
+import com.teamsync.api.features.activity.service.ActivityService;
 import com.teamsync.api.features.organizationmember.entity.OrganizationMember;
 import com.teamsync.api.features.taskcomment.dto.request.CreateCommentRequest;
 import com.teamsync.api.features.taskcomment.dto.request.UpdateCommentRequest;
@@ -29,165 +32,153 @@ public class TaskCommentServiceImpl implements TaskCommentService {
   private final TaskCommentMapper taskCommentMapper;
   private final TaskCommentRepository taskCommentRepository;
   private final TaskCommentAuthorizationService taskCommentAuthorizationService;
-  
+  private final ActivityService activityService;
+
   @Override
   @Transactional
   public CommentResponse createComment(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String currentUserId,
-          CreateCommentRequest request
-  ) {
+      String organizationId,
+      String projectId,
+      String columnId,
+      String taskId,
+      String currentUserId,
+      CreateCommentRequest request) {
 
-      // Verify organization membership
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
+    // Verify organization membership
+    OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+        organizationId,
+        currentUserId);
 
-      // Verify permission
-      permissionService.requireCommentCreatePermission(currentMember);
+    // Verify permission
+    permissionService.requireCommentCreatePermission(currentMember);
 
-      // Verify task access
-      taskAuthorizationService.requireTaskAccess(
-              organizationId,
-              projectId,
-              columnId,
-              taskId,
-              currentUserId
-      );
+    // Verify task access
+    taskAuthorizationService.requireTaskAccess(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUserId);
 
-      // Create comment
-      TaskComment comment =
-              taskCommentMapper.toEntity(
-                      request,
-                      taskId,
-                      currentUserId
-              );
+    // Create comment
+    TaskComment comment = taskCommentMapper.toEntity(
+        request,
+        taskId,
+        currentUserId);
 
-      TaskComment savedComment =
-              taskCommentRepository.save(comment);
+    TaskComment savedComment = taskCommentRepository.save(comment);
 
-      return taskCommentMapper.toResponse(savedComment);
+    return taskCommentMapper.toResponse(savedComment);
 
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<CommentResponse> getComments(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String currentUserId
-  ) {
+      String organizationId,
+      String projectId,
+      String columnId,
+      String taskId,
+      String currentUserId) {
 
-      // Verify organization membership
-      organizationAuthorizationService.requireOrganizationAccess(
-              organizationId,
-              currentUserId
-      );
+    // Verify organization membership
+    organizationAuthorizationService.requireOrganizationAccess(
+        organizationId,
+        currentUserId);
 
-      // Verify task access
-      taskAuthorizationService.requireTaskAccess(
-              organizationId,
-              projectId,
-              columnId,
-              taskId,
-              currentUserId
-      );
+    // Verify task access
+    taskAuthorizationService.requireTaskAccess(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUserId);
 
-      return taskCommentRepository
-              .findByTaskIdOrderByCreatedAtAsc(taskId)
-              .stream()
-              .map(taskCommentMapper::toResponse)
-              .toList();
+    return taskCommentRepository
+        .findByTaskIdOrderByCreatedAtAsc(taskId)
+        .stream()
+        .map(taskCommentMapper::toResponse)
+        .toList();
 
   }
 
   @Override
   @Transactional
   public CommentResponse updateComment(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String commentId,
-          String currentUserId,
-          UpdateCommentRequest request
-  ) {
+      String organizationId,
+      String projectId,
+      String columnId,
+      String taskId,
+      String commentId,
+      String currentUserId,
+      UpdateCommentRequest request) {
 
-      // Verify organization membership
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
+    // Verify organization membership
+    OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+        organizationId,
+        currentUserId);
 
-      // Verify comment access
-      TaskComment comment =
-              taskCommentAuthorizationService.requireCommentAccess(
-                      organizationId,
-                      projectId,
-                      columnId,
-                      taskId,
-                      commentId,
-                      currentUserId
-              );
+    // Verify comment access
+    TaskComment comment = taskCommentAuthorizationService.requireCommentAccess(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        commentId,
+        currentUserId);
 
-      // Verify permission
-      permissionService.requireCommentUpdatePermission(
-              currentMember,
-              comment.getUserId(),
-              currentUserId
-      );
+    // Verify permission
+    permissionService.requireCommentUpdatePermission(
+        currentMember,
+        comment.getUserId(),
+        currentUserId);
 
-      comment.setContent(request.content());
-      comment.setEdited(true);
+    comment.setContent(request.content());
+    comment.setEdited(true);
 
-      TaskComment updatedComment =
-              taskCommentRepository.save(comment);
+    TaskComment updatedComment = taskCommentRepository.save(comment);
 
-      return taskCommentMapper.toResponse(updatedComment);
+    return taskCommentMapper.toResponse(updatedComment);
   }
 
   @Override
   @Transactional
   public void deleteComment(
-          String organizationId,
-          String projectId,
-          String columnId,
-          String taskId,
-          String commentId,
-          String currentUserId
-  ) {
-      // Verify organization membership
-      OrganizationMember currentMember =
-              organizationAuthorizationService.requireOrganizationAccess(
-                      organizationId,
-                      currentUserId
-              );
+      String organizationId,
+      String projectId,
+      String columnId,
+      String taskId,
+      String commentId,
+      String currentUserId) {
+    // Verify organization membership
+    OrganizationMember currentMember = organizationAuthorizationService.requireOrganizationAccess(
+        organizationId,
+        currentUserId);
 
-      // Verify comment access
-      TaskComment comment =
-              taskCommentAuthorizationService.requireCommentAccess(
-                      organizationId,
-                      projectId,
-                      columnId,
-                      taskId,
-                      commentId,
-                      currentUserId
-              );
+    // Verify comment access
+    TaskComment comment = taskCommentAuthorizationService.requireCommentAccess(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        commentId,
+        currentUserId);
 
-      // Verify permission
-      permissionService.requireCommentDeletePermission(
-              currentMember,
-              comment.getUserId(),
-              currentUserId
-      );
-      taskCommentRepository.delete(comment);
+    // Verify permission
+    permissionService.requireCommentDeletePermission(
+        currentMember,
+        comment.getUserId(),
+        currentUserId);
+    taskCommentRepository.delete(comment);
+
+    activityService.logActivity(
+        organizationId,
+        projectId,
+        taskId,
+        currentUserId,
+        ActivityEntityType.COMMENT,
+        ActivityAction.DELETED,
+        comment.getId(),
+        "Deleted a comment.");
   }
 }
