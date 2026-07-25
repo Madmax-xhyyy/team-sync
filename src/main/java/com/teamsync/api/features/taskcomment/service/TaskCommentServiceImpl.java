@@ -8,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.teamsync.api.common.security.OrganizationAuthorizationService;
 import com.teamsync.api.common.security.PermissionService;
 import com.teamsync.api.common.security.TaskAuthorizationService;
+import com.teamsync.api.common.security.TaskCommentAuthorizationService;
 import com.teamsync.api.features.organizationmember.entity.OrganizationMember;
 import com.teamsync.api.features.taskcomment.dto.request.CreateCommentRequest;
+import com.teamsync.api.features.taskcomment.dto.request.UpdateCommentRequest;
 import com.teamsync.api.features.taskcomment.dto.response.CommentResponse;
 import com.teamsync.api.features.taskcomment.entity.TaskComment;
 import com.teamsync.api.features.taskcomment.mapper.TaskCommentMapper;
@@ -26,6 +28,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
   private final TaskAuthorizationService taskAuthorizationService;
   private final TaskCommentMapper taskCommentMapper;
   private final TaskCommentRepository taskCommentRepository;
+  private final TaskCommentAuthorizationService taskCommentAuthorizationService;
   
   @Override
   @Transactional
@@ -103,5 +106,88 @@ public class TaskCommentServiceImpl implements TaskCommentService {
               .map(taskCommentMapper::toResponse)
               .toList();
 
+  }
+
+  @Override
+  @Transactional
+  public CommentResponse updateComment(
+          String organizationId,
+          String projectId,
+          String columnId,
+          String taskId,
+          String commentId,
+          String currentUserId,
+          UpdateCommentRequest request
+  ) {
+
+      // Verify organization membership
+      OrganizationMember currentMember =
+              organizationAuthorizationService.requireOrganizationAccess(
+                      organizationId,
+                      currentUserId
+              );
+
+      // Verify comment access
+      TaskComment comment =
+              taskCommentAuthorizationService.requireCommentAccess(
+                      organizationId,
+                      projectId,
+                      columnId,
+                      taskId,
+                      commentId,
+                      currentUserId
+              );
+
+      // Verify permission
+      permissionService.requireCommentUpdatePermission(
+              currentMember,
+              comment.getUserId(),
+              currentUserId
+      );
+
+      comment.setContent(request.content());
+      comment.setEdited(true);
+
+      TaskComment updatedComment =
+              taskCommentRepository.save(comment);
+
+      return taskCommentMapper.toResponse(updatedComment);
+  }
+
+  @Override
+  @Transactional
+  public void deleteComment(
+          String organizationId,
+          String projectId,
+          String columnId,
+          String taskId,
+          String commentId,
+          String currentUserId
+  ) {
+      // Verify organization membership
+      OrganizationMember currentMember =
+              organizationAuthorizationService.requireOrganizationAccess(
+                      organizationId,
+                      currentUserId
+              );
+
+      // Verify comment access
+      TaskComment comment =
+              taskCommentAuthorizationService.requireCommentAccess(
+                      organizationId,
+                      projectId,
+                      columnId,
+                      taskId,
+                      commentId,
+                      currentUserId
+              );
+
+      // Verify permission
+      permissionService.requireCommentDeletePermission(
+              currentMember,
+              comment.getUserId(),
+              currentUserId
+      );
+      taskCommentRepository.delete(comment);
   }
 }

@@ -90,6 +90,34 @@ public class PermissionService {
 
 }
 
+  public void requireCommentUpdatePermission( OrganizationMember member, String commentAuthorId, String currentUserId) {
+
+    if (member.getRole() == OrganizationRole.OWNER ||
+        member.getRole() == OrganizationRole.ADMIN) {
+        return;
+    }
+
+    if (!commentAuthorId.equals(currentUserId)) {
+        throw new ForbiddenException(
+                "You don't have permission to update this comment."
+        );
+    }
+
+  }
+
+  public void requireCommentDeletePermission(OrganizationMember member, String commentAuthorId, String currentUserId) {
+    if (member.getRole() == OrganizationRole.OWNER ||
+        member.getRole() == OrganizationRole.ADMIN) {
+      return;
+    }
+
+    if (!commentAuthorId.equals(currentUserId)) {
+      throw new ForbiddenException(
+              "You don't have permission to delete this comment."
+      );
+    }
+  }
+
   public void requireRoleUpdatePermission(OrganizationMember currentMember, OrganizationMember targetMember, OrganizationRole newRole) {
 
     OrganizationRole currentRole = currentMember.getRole();
