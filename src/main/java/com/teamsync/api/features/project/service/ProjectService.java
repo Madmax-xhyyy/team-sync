@@ -1,9 +1,9 @@
 package com.teamsync.api.features.project.service;
 
+import com.teamsync.api.common.pagination.PageResponse;
+import com.teamsync.api.common.pagination.PaginationRequest;
 import com.teamsync.api.features.project.dto.request.CreateProjectRequest;
 import com.teamsync.api.features.project.dto.response.ProjectResponse;
-
-import java.util.List;
 
 public interface ProjectService {
 
@@ -12,8 +12,9 @@ public interface ProjectService {
       String userId,
       CreateProjectRequest request);
 
-  List<ProjectResponse> getProjects(
+  PageResponse<ProjectResponse> getProjects(
       String organizationId,
-      String userId);
+      String userId,
+      PaginationRequest pagination);
 
 }

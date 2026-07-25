@@ -1,5 +1,7 @@
 package com.teamsync.api.features.project.controller;
 
+import com.teamsync.api.common.pagination.PageResponse;
+import com.teamsync.api.common.pagination.PaginationRequest;
 import com.teamsync.api.common.response.ApiResponse;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
 import com.teamsync.api.features.project.dto.request.CreateProjectRequest;
@@ -10,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/organizations/{organizationId}/projects")
@@ -40,18 +40,21 @@ public class ProjectController {
   }
 
   @GetMapping
-  public ApiResponse<List<ProjectResponse>> getProjects(
+  public ApiResponse<PageResponse<ProjectResponse>> getProjects(
       @PathVariable String organizationId,
+      @Valid PaginationRequest pagination,
       @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    List<ProjectResponse> response = projectService.getProjects(
+    PageResponse<ProjectResponse> response = projectService.getProjects(
         organizationId,
-        currentUser.getUserId());
+        currentUser.getUserId(),
+        pagination);
 
-    return ApiResponse.<List<ProjectResponse>>builder()
+    return ApiResponse.<PageResponse<ProjectResponse>>builder()
         .success(true)
         .message("Projects retrieved successfully.")
         .data(response)
         .build();
+
   }
 }

@@ -1,5 +1,9 @@
 package com.teamsync.api.features.project.service;
 
+import com.teamsync.api.common.pagination.PageMapper;
+import com.teamsync.api.common.pagination.PageResponse;
+import com.teamsync.api.common.pagination.PaginationRequest;
+import com.teamsync.api.common.pagination.PaginationUtils;
 import com.teamsync.api.common.security.OrganizationAuthorizationService;
 import com.teamsync.api.features.activity.entity.ActivityAction;
 import com.teamsync.api.features.activity.entity.ActivityEntityType;
@@ -12,9 +16,10 @@ import com.teamsync.api.features.project.repository.ProjectRepository;
 import com.teamsync.api.features.task.service.TaskColumnService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final OrganizationAuthorizationService authorizationService;
   private final TaskColumnService taskColumnService;
   private final ActivityService activityService;
+  private final PageMapper pageMapper;
 
   @Override
   public ProjectResponse createProject(
@@ -60,18 +66,36 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public List<ProjectResponse> getProjects(
+  @Transactional(readOnly = true)
+  public PageResponse<ProjectResponse> getProjects(
       String organizationId,
-      String userId) {
+      String userId,
+      PaginationRequest pagination) {
 
     authorizationService.requireOrganizationAccess(
         organizationId,
         userId);
 
-    return projectRepository
-        .findByOrganizationId(organizationId)
-        .stream()
-        .map(projectMapper::toResponse)
-        .toList();
+    Page<Project> projects;
+
+    if (pagination.keywordOrDefault().isBlank()) {
+
+      projects = projectRepository.findByOrganizationId(
+          organizationId,
+          PaginationUtils.toPageable(pagination));
+
+    } else {
+
+      projects = projectRepository.findByOrganizationIdAndNameContainingIgnoreCase(
+          organizationId,
+          pagination.keywordOrDefault(),
+          PaginationUtils.toPageable(pagination));
+
+    }
+
+    return pageMapper.toResponse(
+        projects,
+        projectMapper::toResponse);
+
   }
 }
