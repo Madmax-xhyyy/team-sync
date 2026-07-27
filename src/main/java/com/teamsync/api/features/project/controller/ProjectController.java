@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Projects", description = "Manage organization projects")
@@ -23,6 +25,7 @@ public class ProjectController {
 
   private final ProjectService projectService;
 
+  @Operation(summary = "Create project", description = "Creates a new project inside an organization.")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<ProjectResponse> createProject(
@@ -42,6 +45,7 @@ public class ProjectController {
         .build();
   }
 
+  @Operation(summary = "Get projects", description = "Returns paginated projects belonging to an organization.")
   @GetMapping
   public ApiResponse<PageResponse<ProjectResponse>> getProjects(
       @PathVariable String organizationId,

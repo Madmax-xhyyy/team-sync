@@ -1,45 +1,64 @@
 package com.teamsync.api.common.config;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 public class OpenApiConfig {
 
   @Bean
   public OpenAPI teamSyncOpenAPI() {
 
+    final String securityScheme = "Bearer Authentication";
+
     return new OpenAPI()
 
-        .info(new Info()
+        .info(
+            new Info()
+                .title("TeamSync API")
+                .version("v1")
+                .description("""
+                    TeamSync REST API
 
-            .title("TeamSync API")
+                    Team collaboration platform supporting:
 
-            .version("v1")
+                    • Organizations
+                    • Projects
+                    • Task Boards
+                    • Tasks
+                    • Comments
+                    • Activity Logs
+                    """)
+                .contact(
+                    new Contact()
+                        .name("TeamSync")
+                        .email("support@teamsync.com"))
+                .license(
+                    new License()
+                        .name("MIT")))
 
-            .description("REST API for TeamSync Project Management System.")
+        .addSecurityItem(
+            new SecurityRequirement()
+                .addList(securityScheme))
 
-            .contact(new Contact()
+        .schemaRequirement(
+            securityScheme,
+            new SecurityScheme()
+                .name(securityScheme)
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT"))
 
-                .name("TeamSync")
-
-                .email("support@teamsync.com"))
-
-            .license(new License()
-
-                .name("MIT")))
-
-        .externalDocs(new ExternalDocumentation()
-
-            .description("TeamSync Documentation"));
+        .externalDocs(
+            new ExternalDocumentation()
+                .description("TeamSync Documentation"));
 
   }
 

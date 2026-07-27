@@ -2,32 +2,35 @@ package com.teamsync.api.features.task.dto.response;
 
 import com.teamsync.api.features.task.entity.TaskPriority;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.Instant;
 
 public record TaskResponse(
 
-        String id,
+    @Schema(description = "Task ID", example = "60d5fecb9c9c9d001a1c1c1c") String id,
 
-        String projectId,
+    @Schema(description = "Project ID", example = "60d5fecb9c9c9d001a1c1c1c") String projectId,
 
-        String columnId,
+    @Schema(description = "Column ID", example = "60d5fecb9c9c9d001a1c1c1c") String columnId,
 
-        String title,
+    @Schema(description = "Task title", example = "Mobile App Development") String title,
 
-        String description,
+    @Schema(description = "Task description", example = "Developing a new mobile application") String description,
 
-        TaskPriority priority,
+    @Schema(description = "Task priority", example = "Priority.HIGH") TaskPriority priority,
 
-        String assigneeId,
+    @Schema(description = "Assignee ID", example = "60d5fecb9c9c9d001a1c1c1c") String assigneeId,
 
-        String reporterId,
+    @Schema(description = "Reporter ID", example = "60d5fecb9c9c9d001a1c1c1c") String reporterId,
 
-        Instant dueDate,
+    @Schema(description = "Due date", example = "2026-07-27T13:44:17.431Z") Instant dueDate,
 
-        Integer position,
+    @Schema(description = "Task position", example = "0") Integer position,
 
-        Instant createdAt,
+    @Schema(description = "Task creation date", example = "2026-07-27T13:44:17.431Z") Instant createdAt,
 
-        Instant updatedAt
+    @Schema(description = "Task update date", example = "2026-07-27T13:44:17.431Z") Instant updatedAt
 
-) {}
+) {
+}

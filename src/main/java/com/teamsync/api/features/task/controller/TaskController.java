@@ -18,170 +18,173 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Tasks", description = "Manage project tasks")
 @RestController
 @RequestMapping("/api/v1/organizations/{organizationId}/projects/{projectId}/columns/{columnId}/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
-  private final TaskService taskService;
+    private final TaskService taskService;
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<TaskResponse> createTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @AuthenticationPrincipal CustomUserDetails currentUser,
-      @Valid @RequestBody CreateTaskRequest request) {
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<TaskResponse> createTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @Valid @RequestBody CreateTaskRequest request) {
 
-    TaskResponse response = taskService.createTask(
-        organizationId,
-        projectId,
-        columnId,
-        currentUser.getUserId(),
-        request);
+        TaskResponse response = taskService.createTask(
+                organizationId,
+                projectId,
+                columnId,
+                currentUser.getUserId(),
+                request);
 
-    return ApiResponse.<TaskResponse>builder()
-        .success(true)
-        .message("Task created successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<TaskResponse>builder()
+                .success(true)
+                .message("Task created successfully.")
+                .data(response)
+                .build();
+    }
 
-  @GetMapping
-  public ApiResponse<List<TaskResponse>> getTasks(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @ModelAttribute PageQuery pageQuery,
-      @ModelAttribute TaskFilter filter,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @GetMapping
+    public ApiResponse<List<TaskResponse>> getTasks(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @ModelAttribute PageQuery pageQuery,
+            @ModelAttribute TaskFilter filter,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    List<TaskResponse> response = taskService.getTasks(
-        organizationId,
-        projectId,
-        columnId,
-        currentUser.getUserId());
+        List<TaskResponse> response = taskService.getTasks(
+                organizationId,
+                projectId,
+                columnId,
+                currentUser.getUserId());
 
-    return ApiResponse.<List<TaskResponse>>builder()
-        .success(true)
-        .message("Tasks retrieved successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<List<TaskResponse>>builder()
+                .success(true)
+                .message("Tasks retrieved successfully.")
+                .data(response)
+                .build();
+    }
 
-  @PatchMapping("/{taskId}")
-  public ApiResponse<TaskResponse> updateTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @PathVariable String taskId,
-      @Valid @RequestBody UpdateTaskRequest request,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PatchMapping("/{taskId}")
+    public ApiResponse<TaskResponse> updateTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @PathVariable String taskId,
+            @Valid @RequestBody UpdateTaskRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    TaskResponse response = taskService.updateTask(
-        organizationId,
-        projectId,
-        columnId,
-        taskId,
-        currentUser.getUserId(),
-        request);
+        TaskResponse response = taskService.updateTask(
+                organizationId,
+                projectId,
+                columnId,
+                taskId,
+                currentUser.getUserId(),
+                request);
 
-    return ApiResponse.<TaskResponse>builder()
-        .success(true)
-        .message("Task updated successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<TaskResponse>builder()
+                .success(true)
+                .message("Task updated successfully.")
+                .data(response)
+                .build();
+    }
 
-  @DeleteMapping("/{taskId}")
-  public ApiResponse<Void> deleteTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @PathVariable String taskId,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @DeleteMapping("/{taskId}")
+    public ApiResponse<Void> deleteTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @PathVariable String taskId,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    taskService.deleteTask(
-        organizationId,
-        projectId,
-        columnId,
-        taskId,
-        currentUser.getUserId());
+        taskService.deleteTask(
+                organizationId,
+                projectId,
+                columnId,
+                taskId,
+                currentUser.getUserId());
 
-    return ApiResponse.<Void>builder()
-        .success(true)
-        .message("Task deleted successfully.")
-        .build();
-  }
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("Task deleted successfully.")
+                .build();
+    }
 
-  @PatchMapping("/{taskId}/move")
-  public ApiResponse<TaskResponse> moveTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @PathVariable String taskId,
-      @Valid @RequestBody MoveTaskRequest request,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PatchMapping("/{taskId}/move")
+    public ApiResponse<TaskResponse> moveTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @PathVariable String taskId,
+            @Valid @RequestBody MoveTaskRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    TaskResponse response = taskService.moveTask(
-        organizationId,
-        projectId,
-        columnId,
-        taskId,
-        currentUser.getUserId(),
-        request);
+        TaskResponse response = taskService.moveTask(
+                organizationId,
+                projectId,
+                columnId,
+                taskId,
+                currentUser.getUserId(),
+                request);
 
-    return ApiResponse.<TaskResponse>builder()
-        .success(true)
-        .message("Task moved successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<TaskResponse>builder()
+                .success(true)
+                .message("Task moved successfully.")
+                .data(response)
+                .build();
+    }
 
-  @PatchMapping("/{taskId}/assignee")
-  public ApiResponse<TaskResponse> assignTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @PathVariable String taskId,
-      @Valid @RequestBody AssignTaskRequest request,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @PatchMapping("/{taskId}/assignee")
+    public ApiResponse<TaskResponse> assignTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @PathVariable String taskId,
+            @Valid @RequestBody AssignTaskRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    TaskResponse response = taskService.assignTask(
-        organizationId,
-        projectId,
-        columnId,
-        taskId,
-        currentUser.getUserId(),
-        request);
+        TaskResponse response = taskService.assignTask(
+                organizationId,
+                projectId,
+                columnId,
+                taskId,
+                currentUser.getUserId(),
+                request);
 
-    return ApiResponse.<TaskResponse>builder()
-        .success(true)
-        .message("Task assigned successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<TaskResponse>builder()
+                .success(true)
+                .message("Task assigned successfully.")
+                .data(response)
+                .build();
+    }
 
-  @DeleteMapping("/{taskId}/assignee")
-  public ApiResponse<TaskResponse> unassignTask(
-      @PathVariable String organizationId,
-      @PathVariable String projectId,
-      @PathVariable String columnId,
-      @PathVariable String taskId,
-      @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @DeleteMapping("/{taskId}/assignee")
+    public ApiResponse<TaskResponse> unassignTask(
+            @PathVariable String organizationId,
+            @PathVariable String projectId,
+            @PathVariable String columnId,
+            @PathVariable String taskId,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-    TaskResponse response = taskService.unassignTask(
-        organizationId,
-        projectId,
-        columnId,
-        taskId,
-        currentUser.getUserId());
+        TaskResponse response = taskService.unassignTask(
+                organizationId,
+                projectId,
+                columnId,
+                taskId,
+                currentUser.getUserId());
 
-    return ApiResponse.<TaskResponse>builder()
-        .success(true)
-        .message("Task unassigned successfully.")
-        .data(response)
-        .build();
-  }
+        return ApiResponse.<TaskResponse>builder()
+                .success(true)
+                .message("Task unassigned successfully.")
+                .data(response)
+                .build();
+    }
 }

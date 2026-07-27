@@ -7,6 +7,7 @@ import com.teamsync.api.common.domain.AuditableEntity;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 
@@ -35,6 +36,8 @@ public class User extends AuditableEntity {
     @Builder.Default
     private AuthProvider provider = AuthProvider.LOCAL;
 
+    @Indexed
+    @Field("provider_id")
     private String providerId;
 
     @Builder.Default
@@ -43,6 +46,7 @@ public class User extends AuditableEntity {
     @Builder.Default
     private boolean emailVerified = false;
 
+    @Field("last_login_at")
     private Instant lastLoginAt;
 
 }

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 @Getter
@@ -16,6 +18,15 @@ import org.springframework.data.mongodb.core.index.Indexed;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "activities")
+@CompoundIndexes({
+
+    @CompoundIndex(name = "organization_created_idx", def = "{'organization_id': 1, 'created_at': -1}"),
+
+    @CompoundIndex(name = "project_created_idx", def = "{'project_id': 1, 'created_at': -1}"),
+
+    @CompoundIndex(name = "task_created_idx", def = "{'task_id': 1, 'created_at': -1}")
+
+})
 public class Activity extends AuditableEntity {
 
   @Indexed
@@ -30,6 +41,7 @@ public class Activity extends AuditableEntity {
   @Field("task_id")
   private String taskId;
 
+  @Indexed
   @Field("user_id")
   private String userId;
 

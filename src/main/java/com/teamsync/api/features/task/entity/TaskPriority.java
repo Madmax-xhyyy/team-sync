@@ -1,13 +1,20 @@
 package com.teamsync.api.features.task.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Defines the priority level of a task.")
 public enum TaskPriority {
 
-    LOW,
+  @Schema(description = "The priority level is low.")
+  LOW,
 
-    MEDIUM,
+  @Schema(description = "The priority level is medium.")
+  MEDIUM,
 
-    HIGH,
+  @Schema(description = "The priority level is high.")
+  HIGH,
 
-    CRITICAL
+  @Schema(description = "The priority level is critical.")
+  CRITICAL
 
 }
