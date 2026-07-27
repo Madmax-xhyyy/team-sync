@@ -2,14 +2,13 @@ package com.teamsync.api.features.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record LoginRequest(
 
-        @NotBlank
-        @Email
-        String email,
+    @Schema(description = "Email", example = "example@gmail.com") @NotBlank @Email String email,
 
-        @NotBlank
-        String password
+    @Schema(description = "Password", example = "password123!") @NotBlank String password
 
-) {}
+) {
+}

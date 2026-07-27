@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Projects", description = "Manage organization projects")
@@ -26,6 +27,11 @@ public class ProjectController {
   private final ProjectService projectService;
 
   @Operation(summary = "Create project", description = "Creates a new project inside an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Project created successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<ProjectResponse> createProject(
@@ -46,6 +52,10 @@ public class ProjectController {
   }
 
   @Operation(summary = "Get projects", description = "Returns paginated projects belonging to an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projects retrieved successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @GetMapping
   public ApiResponse<PageResponse<ProjectResponse>> getProjects(
       @PathVariable String organizationId,

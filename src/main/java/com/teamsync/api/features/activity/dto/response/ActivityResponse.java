@@ -5,29 +5,31 @@ import com.teamsync.api.features.activity.entity.ActivityEntityType;
 
 import java.time.Instant;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record ActivityResponse(
 
-    String id,
+    @Schema(description = "Activity ID", example = "1") String id,
 
-    String organizationId,
+    @Schema(description = "Organization ID", example = "1") String organizationId,
 
-    String projectId,
+    @Schema(description = "Project ID", example = "1") String projectId,
 
-    String taskId,
+    @Schema(description = "Task ID", example = "1") String taskId,
 
-    String userId,
+    @Schema(description = "User ID", example = "1") String userId,
 
-    ActivityEntityType entityType,
+    @Schema(description = "Entity Type", example = "TASK") ActivityEntityType entityType,
 
-    ActivityAction action,
+    @Schema(description = "Activity Action", example = "CREATE") ActivityAction action,
 
-    String entityId,
+    @Schema(description = "Entity ID", example = "1") String entityId,
 
-    String description,
+    @Schema(description = "Description", example = "Task created successfully") String description,
 
-    Instant createdAt,
+    @Schema(description = "Created At", example = "2022-01-01T00:00:00Z") Instant createdAt,
 
-    Instant updatedAt
+    @Schema(description = "Updated At", example = "2022-01-01T00:00:00Z") Instant updatedAt
 
 ) {
 }

@@ -5,14 +5,13 @@ import com.teamsync.api.features.organization.entity.OrganizationRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AddMemberRequest(
 
-        @Email
-        @NotBlank
-        String email,
+    @Schema(description = "Email", example = "example@gmail.com") @Email @NotBlank String email,
 
-        @NotNull
-        OrganizationRole role
+    @Schema(description = "Organization role", example = "MEMBER") @NotNull OrganizationRole role
 
-) {}
+) {
+}

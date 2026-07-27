@@ -2,18 +2,21 @@ package com.teamsync.api.features.organizationmember.dto.response;
 
 import com.teamsync.api.features.organization.entity.OrganizationRole;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record MemberResponse(
 
-        String id,
+    @Schema(description = "Member ID", example = "1") String id,
 
-        String userId,
+    @Schema(description = "User ID", example = "1") String userId,
 
-        String firstName,
+    @Schema(description = "First name", example = "John") String firstName,
 
-        String lastName,
+    @Schema(description = "Last name", example = "Doe") String lastName,
 
-        String email,
+    @Schema(description = "Email", example = "example@gmail.com") String email,
 
-        OrganizationRole role
+    @Schema(description = "Organization role", example = "MEMBER") OrganizationRole role
 
-) {}
+) {
+}

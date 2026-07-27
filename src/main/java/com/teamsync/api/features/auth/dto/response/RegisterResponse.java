@@ -1,5 +1,6 @@
 package com.teamsync.api.features.auth.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,12 +8,16 @@ import lombok.Data;
 @Builder
 public class RegisterResponse {
 
-    private String id;
+  @Schema(description = "User ID", example = "1")
+  private String id;
 
-    private String firstName;
+  @Schema(description = "First name", example = "John")
+  private String firstName;
 
-    private String lastName;
+  @Schema(description = "Last name", example = "Doe")
+  private String lastName;
 
-    private String email;
+  @Schema(description = "Email", example = "[EMAIL_ADDRESS]")
+  private String email;
 
 }

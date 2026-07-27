@@ -2,12 +2,15 @@ package com.teamsync.api.features.board.dto;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record BoardResponse(
 
-        String projectId,
+    @Schema(description = "Project ID", example = "1") String projectId,
 
-        String projectName,
+    @Schema(description = "Project name", example = "Project Alpha") String projectName,
 
-        List<BoardColumnResponse> columns
+    @Schema(description = "List of columns") List<BoardColumnResponse> columns
 
-) {}
+) {
+}

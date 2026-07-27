@@ -2,15 +2,13 @@ package com.teamsync.api.features.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UpdateProfileRequest(
 
-        @NotBlank(message = "First name is required.")
-        @Size(max = 50)
-        String firstName,
+    @Schema(description = "First name", example = "John") @NotBlank @Size(max = 50) String firstName,
 
-        @NotBlank(message = "Last name is required.")
-        @Size(max = 50)
-        String lastName
+    @Schema(description = "Last name", example = "Doe") @NotBlank @Size(max = 50) String lastName
 
-) {}
+) {
+}

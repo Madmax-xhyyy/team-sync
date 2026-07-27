@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Tasks", description = "Manage project tasks")
@@ -26,165 +28,207 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final TaskService taskService;
+  private final TaskService taskService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<TaskResponse> createTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @AuthenticationPrincipal CustomUserDetails currentUser,
-            @Valid @RequestBody CreateTaskRequest request) {
+  @Operation(summary = "Create task", description = "Creates a new task in a column.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Task created successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<TaskResponse> createTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @AuthenticationPrincipal CustomUserDetails currentUser,
+      @Valid @RequestBody CreateTaskRequest request) {
 
-        TaskResponse response = taskService.createTask(
-                organizationId,
-                projectId,
-                columnId,
-                currentUser.getUserId(),
-                request);
+    TaskResponse response = taskService.createTask(
+        organizationId,
+        projectId,
+        columnId,
+        currentUser.getUserId(),
+        request);
 
-        return ApiResponse.<TaskResponse>builder()
-                .success(true)
-                .message("Task created successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<TaskResponse>builder()
+        .success(true)
+        .message("Task created successfully.")
+        .data(response)
+        .build();
+  }
 
-    @GetMapping
-    public ApiResponse<List<TaskResponse>> getTasks(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @ModelAttribute PageQuery pageQuery,
-            @ModelAttribute TaskFilter filter,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Get all tasks", description = "Retrieves all tasks in a column.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tasks retrieved successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Column not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @GetMapping
+  public ApiResponse<List<TaskResponse>> getTasks(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @ModelAttribute PageQuery pageQuery,
+      @ModelAttribute TaskFilter filter,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        List<TaskResponse> response = taskService.getTasks(
-                organizationId,
-                projectId,
-                columnId,
-                currentUser.getUserId());
+    List<TaskResponse> response = taskService.getTasks(
+        organizationId,
+        projectId,
+        columnId,
+        currentUser.getUserId());
 
-        return ApiResponse.<List<TaskResponse>>builder()
-                .success(true)
-                .message("Tasks retrieved successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<List<TaskResponse>>builder()
+        .success(true)
+        .message("Tasks retrieved successfully.")
+        .data(response)
+        .build();
+  }
 
-    @PatchMapping("/{taskId}")
-    public ApiResponse<TaskResponse> updateTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @PathVariable String taskId,
-            @Valid @RequestBody UpdateTaskRequest request,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Update task", description = "Updates an existing task.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task updated successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Task not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @PatchMapping("/{taskId}")
+  public ApiResponse<TaskResponse> updateTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @PathVariable String taskId,
+      @Valid @RequestBody UpdateTaskRequest request,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        TaskResponse response = taskService.updateTask(
-                organizationId,
-                projectId,
-                columnId,
-                taskId,
-                currentUser.getUserId(),
-                request);
+    TaskResponse response = taskService.updateTask(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUser.getUserId(),
+        request);
 
-        return ApiResponse.<TaskResponse>builder()
-                .success(true)
-                .message("Task updated successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<TaskResponse>builder()
+        .success(true)
+        .message("Task updated successfully.")
+        .data(response)
+        .build();
+  }
 
-    @DeleteMapping("/{taskId}")
-    public ApiResponse<Void> deleteTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @PathVariable String taskId,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Delete task", description = "Deletes a task.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task deleted successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Task not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @DeleteMapping("/{taskId}")
+  public ApiResponse<Void> deleteTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @PathVariable String taskId,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        taskService.deleteTask(
-                organizationId,
-                projectId,
-                columnId,
-                taskId,
-                currentUser.getUserId());
+    taskService.deleteTask(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUser.getUserId());
 
-        return ApiResponse.<Void>builder()
-                .success(true)
-                .message("Task deleted successfully.")
-                .build();
-    }
+    return ApiResponse.<Void>builder()
+        .success(true)
+        .message("Task deleted successfully.")
+        .build();
+  }
 
-    @PatchMapping("/{taskId}/move")
-    public ApiResponse<TaskResponse> moveTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @PathVariable String taskId,
-            @Valid @RequestBody MoveTaskRequest request,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Move task", description = "Moves a task to a different column.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task moved successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Task not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @PatchMapping("/{taskId}/move")
+  public ApiResponse<TaskResponse> moveTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @PathVariable String taskId,
+      @Valid @RequestBody MoveTaskRequest request,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        TaskResponse response = taskService.moveTask(
-                organizationId,
-                projectId,
-                columnId,
-                taskId,
-                currentUser.getUserId(),
-                request);
+    TaskResponse response = taskService.moveTask(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUser.getUserId(),
+        request);
 
-        return ApiResponse.<TaskResponse>builder()
-                .success(true)
-                .message("Task moved successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<TaskResponse>builder()
+        .success(true)
+        .message("Task moved successfully.")
+        .data(response)
+        .build();
+  }
 
-    @PatchMapping("/{taskId}/assignee")
-    public ApiResponse<TaskResponse> assignTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @PathVariable String taskId,
-            @Valid @RequestBody AssignTaskRequest request,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Assign task", description = "Assigns a task to a user.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task assigned successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Task not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @PatchMapping("/{taskId}/assignee")
+  public ApiResponse<TaskResponse> assignTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @PathVariable String taskId,
+      @Valid @RequestBody AssignTaskRequest request,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        TaskResponse response = taskService.assignTask(
-                organizationId,
-                projectId,
-                columnId,
-                taskId,
-                currentUser.getUserId(),
-                request);
+    TaskResponse response = taskService.assignTask(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUser.getUserId(),
+        request);
 
-        return ApiResponse.<TaskResponse>builder()
-                .success(true)
-                .message("Task assigned successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<TaskResponse>builder()
+        .success(true)
+        .message("Task assigned successfully.")
+        .data(response)
+        .build();
+  }
 
-    @DeleteMapping("/{taskId}/assignee")
-    public ApiResponse<TaskResponse> unassignTask(
-            @PathVariable String organizationId,
-            @PathVariable String projectId,
-            @PathVariable String columnId,
-            @PathVariable String taskId,
-            @AuthenticationPrincipal CustomUserDetails currentUser) {
+  @Operation(summary = "Unassign task", description = "Unassigns a task from a user.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task unassigned successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Task not found."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
+  @DeleteMapping("/{taskId}/assignee")
+  public ApiResponse<TaskResponse> unassignTask(
+      @PathVariable String organizationId,
+      @PathVariable String projectId,
+      @PathVariable String columnId,
+      @PathVariable String taskId,
+      @AuthenticationPrincipal CustomUserDetails currentUser) {
 
-        TaskResponse response = taskService.unassignTask(
-                organizationId,
-                projectId,
-                columnId,
-                taskId,
-                currentUser.getUserId());
+    TaskResponse response = taskService.unassignTask(
+        organizationId,
+        projectId,
+        columnId,
+        taskId,
+        currentUser.getUserId());
 
-        return ApiResponse.<TaskResponse>builder()
-                .success(true)
-                .message("Task unassigned successfully.")
-                .data(response)
-                .build();
-    }
+    return ApiResponse.<TaskResponse>builder()
+        .success(true)
+        .message("Task unassigned successfully.")
+        .data(response)
+        .build();
+  }
 }

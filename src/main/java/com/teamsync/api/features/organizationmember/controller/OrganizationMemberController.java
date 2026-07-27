@@ -16,6 +16,11 @@ import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Organization Members", description = "Manage organization members")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/organizations/{organizationId}/members")
@@ -23,6 +28,12 @@ public class OrganizationMemberController {
 
   private final OrganizationMemberService organizationMemberService;
 
+  @Operation(summary = "Add member", description = "Adds a new member to an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Member added successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @PostMapping
   public ApiResponse<MemberResponse> addMember(
       @PathVariable String organizationId,
@@ -41,6 +52,11 @@ public class OrganizationMemberController {
         .build();
   }
 
+  @Operation(summary = "Get members", description = "Returns paginated members belonging to an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Members retrieved successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @GetMapping
   public ApiResponse<List<MemberResponse>> getMembers(
       @PathVariable String organizationId,
@@ -58,6 +74,12 @@ public class OrganizationMemberController {
         .build();
   }
 
+  @Operation(summary = "Update role", description = "Updates the role of a member in an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Member role updated successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @PatchMapping("/{memberId}/role")
   public ApiResponse<MemberResponse> updateRole(
       @PathVariable String organizationId,
@@ -78,6 +100,11 @@ public class OrganizationMemberController {
         .build();
   }
 
+  @Operation(summary = "Remove member", description = "Removes a member from an organization.")
+  @ApiResponses({
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Member removed successfully."),
+      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden.")
+  })
   @DeleteMapping("/{memberId}")
   public ApiResponse<Void> removeMember(
       @PathVariable String organizationId,

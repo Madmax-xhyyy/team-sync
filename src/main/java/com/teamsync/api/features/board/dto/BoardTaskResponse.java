@@ -3,18 +3,21 @@ package com.teamsync.api.features.board.dto;
 import com.teamsync.api.features.task.entity.TaskPriority;
 import com.teamsync.api.features.task.entity.TaskType;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record BoardTaskResponse(
 
-        String id,
+    @Schema(description = "Task ID", example = "1") String id,
 
-        String title,
+    @Schema(description = "Task title", example = "Task 1") String title,
 
-        TaskPriority priority,
+    @Schema(description = "Task priority", example = "HIGH") TaskPriority priority,
 
-        TaskType type,
+    @Schema(description = "Task type", example = "BUG") TaskType type,
 
-        String assigneeId,
+    @Schema(description = "Assignee ID", example = "1") String assigneeId,
 
-        Integer position
+    @Schema(description = "Task position", example = "0") Integer position
 
-) {}
+) {
+}
