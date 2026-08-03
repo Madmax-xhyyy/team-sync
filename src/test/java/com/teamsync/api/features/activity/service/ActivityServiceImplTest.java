@@ -1,4 +1,4 @@
-package com.teamsync.api.features.activity;
+package com.teamsync.api.features.activity.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +25,7 @@ import com.teamsync.api.features.activity.entity.ActivityAction;
 import com.teamsync.api.features.activity.entity.ActivityEntityType;
 import com.teamsync.api.features.activity.mapper.ActivityMapper;
 import com.teamsync.api.features.activity.repository.ActivityRepository;
-import com.teamsync.api.features.activity.service.ActivityServiceImpl;
+
 
 @ExtendWith(MockitoExtension.class)
 class ActivityServiceImplTest {

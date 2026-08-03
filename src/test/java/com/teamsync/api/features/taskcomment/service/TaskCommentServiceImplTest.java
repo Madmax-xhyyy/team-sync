@@ -1,4 +1,4 @@
-package com.teamsync.api.features.taskcomment;
+package com.teamsync.api.features.taskcomment.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +31,6 @@ import com.teamsync.api.features.taskcomment.dto.response.CommentResponse;
 import com.teamsync.api.features.taskcomment.entity.TaskComment;
 import com.teamsync.api.features.taskcomment.mapper.TaskCommentMapper;
 import com.teamsync.api.features.taskcomment.repository.TaskCommentRepository;
-import com.teamsync.api.features.taskcomment.service.TaskCommentServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class TaskCommentServiceImplTest {
