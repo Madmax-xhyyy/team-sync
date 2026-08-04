@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
   public RegisterResponse register(RegisterRequest request) {
 
     if (userRepository.existsByEmail(request.getEmail())) {
-        throw new BadRequestException("Email is already registered.");
+      throw new BadRequestException("Email is already registered.");
     }
 
     User user = userMapper.toEntity(request);
@@ -43,29 +43,25 @@ public class AuthServiceImpl implements AuthService {
 
     return userMapper.toRegisterResponse(savedUser);
   }
-    
+
   @Override
   public AuthResponse login(LoginRequest request) {
 
     Authentication authentication = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated(
-                    request.email(),
-                    request.password()
-            )
-    );
+        UsernamePasswordAuthenticationToken.unauthenticated(
+            request.email(),
+            request.password()));
 
-    CustomUserDetails userDetails =
-            (CustomUserDetails) authentication.getPrincipal();
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
     String accessToken = jwtService.generateAccessToken(userDetails);
     String refreshToken = jwtService.generateRefreshToken(userDetails);
 
     return new AuthResponse(
-            accessToken,
-            refreshToken,
-            "Bearer",
-            jwtService.getAccessTokenExpiration()
-    );
+        accessToken,
+        refreshToken,
+        "Bearer",
+        jwtService.getAccessTokenExpiration());
   }
 
 }
