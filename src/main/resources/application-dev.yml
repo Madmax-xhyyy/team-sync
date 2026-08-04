@@ -1,10 +1,10 @@
 spring:
   config:
-    import: file:env.properties
+    import: optional:file:env.properties
   mongodb:
     uri: ${MONGODB_URI}
     database: ${MONGODB_DB}
-    
+
 jwt:
   secret: ${JWT_SECRET}
   issuer: TeamSync
