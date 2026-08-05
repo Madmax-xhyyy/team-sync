@@ -277,3 +277,7 @@ Every push and pull request automatically runs:
 - Activity Logs
 - Notifications
 - WebSocket Support
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
