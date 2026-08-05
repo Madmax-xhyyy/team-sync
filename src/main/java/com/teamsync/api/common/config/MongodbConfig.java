@@ -24,10 +24,20 @@ public class MongodbConfig {
   @EventListener(ApplicationReadyEvent.class)
   public void verifyConnection() {
 
-    mongoTemplate.getDb().runCommand(new Document("ping", 1));
+    try {
 
-    log.info(
-        "Connected to MongoDB database: {}",
-        mongoTemplate.getDb().getName());
+      mongoTemplate.getDb().runCommand(new Document("ping", 1));
+
+      log.info(
+          "Connected to MongoDB database: {}",
+          mongoTemplate.getDb().getName());
+
+    } catch (Exception ex) {
+
+      log.warn(
+          "MongoDB connection verification failed: {}",
+          ex.getMessage());
+
+    }
   }
 }

@@ -1,0 +1,38 @@
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: teamsync-mongodb
+    restart: unless-stopped
+
+    ports:
+      - '27017:27017'
+
+    environment:
+      MONGO_INITDB_DATABASE: teamsync
+
+    volumes:
+      - mongodb_data:/data/db
+
+  backend:
+    build: .
+
+    container_name: teamsync-api
+
+    restart: unless-stopped
+
+    ports:
+      - '8080:8080'
+
+    volumes:
+      - ./env.properties:/app/env.properties
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      MONGODB_URI: mongodb://mongodb:27017
+
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:

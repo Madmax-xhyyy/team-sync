@@ -3,7 +3,7 @@ spring:
     import: optional:file:env.properties
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: mongodb://mongodb:27017
       database: ${MONGODB_DB}
 
 jwt:
@@ -11,7 +11,3 @@ jwt:
   issuer: TeamSync
   access-token-expiration: 900000
   refresh-token-expiration: 604800000
-
-logging:
-  level:
-    root: WARN
