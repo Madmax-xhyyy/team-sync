@@ -1,21 +1,23 @@
 package com.teamsync.api.features.auth.controller;
 
-import org.springframework.http.ResponseCookie;
+import java.time.Duration;
+
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teamsync.api.common.response.ApiResponse;
+import com.teamsync.api.common.exception.BadRequestException;
 import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
 import com.teamsync.api.features.auth.dto.response.AuthResponse;
 import com.teamsync.api.features.auth.dto.response.LoginResult;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.service.AuthService;
-
-import java.time.Duration;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -74,6 +76,72 @@ public class AuthController {
         .success(true)
         .message("Login successful.")
         .data(authResponse)
+        .build();
+  }
+
+  @Operation(summary = "Refresh access token")
+  @PostMapping("/refresh")
+  public ApiResponse<AuthResponse> refresh(
+      @CookieValue(name = "refresh_token", required = false) String refreshToken,
+      HttpServletResponse response) {
+
+    if (refreshToken == null || refreshToken.isBlank()) {
+      throw new BadRequestException(
+          "Refresh token is missing.");
+    }
+
+    LoginResult result = authService.refresh(refreshToken);
+
+    ResponseCookie refreshCookie = ResponseCookie
+        .from("refresh_token", result.refreshToken())
+        .httpOnly(true)
+        .secure(false)
+        .sameSite("Strict")
+        .path("/api/v1/auth")
+        .maxAge(Duration.ofDays(7))
+        .build();
+
+    response.addHeader(
+        HttpHeaders.SET_COOKIE,
+        refreshCookie.toString());
+
+    AuthResponse authResponse = new AuthResponse(
+        result.accessToken(),
+        result.expiresIn());
+
+    return ApiResponse.<AuthResponse>builder()
+        .success(true)
+        .message("Access token refreshed successfully.")
+        .data(authResponse)
+        .build();
+  }
+
+  @Operation(summary = "Logout")
+  @PostMapping("/logout")
+  public ApiResponse<Void> logout(
+      @CookieValue(name = "refresh_token", required = false) String refreshToken,
+      HttpServletResponse response) {
+
+    if (refreshToken != null && !refreshToken.isBlank()) {
+      authService.logout(refreshToken);
+    }
+
+    ResponseCookie clearCookie = ResponseCookie
+        .from("refresh_token", "")
+        .httpOnly(true)
+        .secure(false)
+        .sameSite("Strict")
+        .path("/api/v1/auth")
+        .maxAge(Duration.ZERO)
+        .build();
+
+    response.addHeader(
+        HttpHeaders.SET_COOKIE,
+        clearCookie.toString());
+
+    return ApiResponse.<Void>builder()
+        .success(true)
+        .message("Logout successful.")
         .build();
   }
 }

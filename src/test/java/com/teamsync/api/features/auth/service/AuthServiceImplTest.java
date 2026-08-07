@@ -1,7 +1,7 @@
 package com.teamsync.api.features.auth.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +23,8 @@ import com.teamsync.api.features.auth.dto.response.AuthResponse;
 import com.teamsync.api.features.auth.dto.response.LoginResult;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.mapper.AuthMapper;
+import com.teamsync.api.features.auth.refresh.entity.RefreshToken;
+import com.teamsync.api.features.auth.refresh.service.RefreshTokenService;
 import com.teamsync.api.features.auth.security.jwt.JwtService;
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
 import com.teamsync.api.features.user.entity.User;
@@ -49,6 +51,9 @@ class AuthServiceImplTest {
 
   @Mock
   private JwtService jwtService;
+
+  @Mock
+  private RefreshTokenService refreshTokenService;
 
   @Mock
   private Authentication authentication;
@@ -203,6 +208,9 @@ class AuthServiceImplTest {
 
     verify(jwtService)
         .generateRefreshToken(userDetails);
+
+    verify(refreshTokenService)
+        .createSession(userDetails, "refresh-token");
   }
 
   @Test
@@ -298,5 +306,108 @@ class AuthServiceImplTest {
 
     verify(jwtService, times(1))
         .getAccessTokenExpirationSeconds();
+
+    verify(refreshTokenService, times(1))
+        .createSession(userDetails, "refresh");
+  }
+
+  @Test
+  void shouldRefreshSuccessfully() {
+
+    String oldRefreshToken = "old-refresh-token";
+    RefreshToken session = RefreshToken.builder()
+        .userId(USER_ID)
+        .tokenId("old-token-id")
+        .build();
+
+    User user = createUser();
+
+    when(refreshTokenService.validateSession(oldRefreshToken))
+        .thenReturn(session);
+
+    when(userRepository.findById(USER_ID))
+        .thenReturn(java.util.Optional.of(user));
+
+    when(jwtService.generateAccessToken(any(CustomUserDetails.class)))
+        .thenReturn("new-access-token");
+
+    when(jwtService.generateRefreshToken(any(CustomUserDetails.class)))
+        .thenReturn("new-refresh-token");
+
+    when(jwtService.getAccessTokenExpirationSeconds())
+        .thenReturn(900L);
+
+    LoginResult result = service.refresh(oldRefreshToken);
+
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals("new-access-token", result.accessToken()),
+        () -> assertEquals("new-refresh-token", result.refreshToken()),
+        () -> assertEquals(900L, result.expiresIn()));
+
+    verify(refreshTokenService)
+        .validateSession(oldRefreshToken);
+
+    verify(userRepository)
+        .findById(USER_ID);
+
+    verify(refreshTokenService)
+        .revokeSession("old-token-id");
+
+    verify(jwtService)
+        .generateAccessToken(any(CustomUserDetails.class));
+
+    verify(jwtService)
+        .generateRefreshToken(any(CustomUserDetails.class));
+
+    verify(refreshTokenService)
+        .createSession(any(CustomUserDetails.class), eq("new-refresh-token"));
+  }
+
+  @Test
+  void shouldThrowRefreshWhenUserNotFound() {
+
+    String oldRefreshToken = "old-refresh-token";
+    RefreshToken session = RefreshToken.builder()
+        .userId(USER_ID)
+        .tokenId("old-token-id")
+        .build();
+
+    when(refreshTokenService.validateSession(oldRefreshToken))
+        .thenReturn(session);
+
+    when(userRepository.findById(USER_ID))
+        .thenReturn(java.util.Optional.empty());
+
+    assertThrows(
+        BadRequestException.class,
+        () -> service.refresh(oldRefreshToken));
+
+    verify(refreshTokenService, never())
+        .revokeSession(anyString());
+
+    verify(jwtService, never())
+        .generateAccessToken(any());
+  }
+
+  @Test
+  void shouldLogoutSuccessfully() {
+
+    String refreshToken = "refresh-token";
+    RefreshToken session = RefreshToken.builder()
+        .userId(USER_ID)
+        .tokenId("token-id")
+        .build();
+
+    when(refreshTokenService.validateSession(refreshToken))
+        .thenReturn(session);
+
+    service.logout(refreshToken);
+
+    verify(refreshTokenService)
+        .validateSession(refreshToken);
+
+    verify(refreshTokenService)
+        .revokeSession("token-id");
   }
 }

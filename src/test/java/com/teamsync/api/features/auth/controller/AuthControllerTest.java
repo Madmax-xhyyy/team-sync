@@ -1,7 +1,7 @@
 package com.teamsync.api.features.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -142,5 +142,69 @@ class AuthControllerTest {
         .andExpect(cookie().value("refresh_token", "refresh-token"))
         .andExpect(cookie().httpOnly("refresh_token", true))
         .andExpect(cookie().secure("refresh_token", true));
+  }
+
+  @Test
+  void shouldRefreshToken() throws Exception {
+
+    LoginResult result = new LoginResult(
+        "new-access-token",
+        "new-refresh-token",
+        900L);
+
+    when(authService.refresh("old-refresh-token"))
+        .thenReturn(result);
+
+    mockMvc.perform(post("/api/v1/auth/refresh")
+        .cookie(new jakarta.servlet.http.Cookie("refresh_token", "old-refresh-token")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.message")
+            .value("Access token refreshed successfully."))
+        .andExpect(jsonPath("$.data.accessToken")
+            .value("new-access-token"))
+        .andExpect(jsonPath("$.data.expiresIn")
+            .value(900))
+        .andExpect(cookie().exists("refresh_token"))
+        .andExpect(cookie().value("refresh_token", "new-refresh-token"))
+        .andExpect(cookie().httpOnly("refresh_token", true));
+  }
+
+  @Test
+  void shouldThrowWhenRefreshTokenCookieIsMissing() throws Exception {
+
+    mockMvc.perform(post("/api/v1/auth/refresh"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldLogout() throws Exception {
+
+    mockMvc.perform(post("/api/v1/auth/logout")
+        .cookie(new jakarta.servlet.http.Cookie("refresh_token", "refresh-token")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.message")
+            .value("Logout successful."))
+        .andExpect(cookie().exists("refresh_token"))
+        .andExpect(cookie().maxAge("refresh_token", 0));
+
+    verify(authService, times(1))
+        .logout("refresh-token");
+  }
+
+  @Test
+  void shouldLogoutEvenIfRefreshTokenCookieIsMissing() throws Exception {
+
+    mockMvc.perform(post("/api/v1/auth/logout"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.message")
+            .value("Logout successful."))
+        .andExpect(cookie().exists("refresh_token"))
+        .andExpect(cookie().maxAge("refresh_token", 0));
+
+    verify(authService, never())
+        .logout(any());
   }
 }

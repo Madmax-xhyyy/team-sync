@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.teamsync.api.features.auth.security.userdetails.CustomUserDetails;
 
+import java.util.UUID;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -35,13 +37,19 @@ public class JwtService {
 
     Date now = new Date();
 
-    return Jwts.builder()
+    var builder = Jwts.builder()
         .subject(userDetails.getUsername())
         .claim("uid", userDetails.getUserId())
         .claim("type", tokenType)
         .issuer(jwtProperties.getIssuer())
         .issuedAt(now)
-        .expiration(new Date(now.getTime() + expiration))
+        .expiration(new Date(now.getTime() + expiration));
+
+    if ("refresh".equals(tokenType)) {
+      builder.id(UUID.randomUUID().toString());
+    }
+
+    return builder
         .signWith(secretKey)
         .compact();
   }
@@ -58,6 +66,12 @@ public class JwtService {
         userDetails,
         jwtProperties.getRefreshTokenExpiration(),
         "refresh");
+  }
+
+  public String extractTokenId(String token) {
+    return extractClaim(
+        token,
+        Claims::getId);
   }
 
   public String extractTokenType(String token) {
