@@ -3,6 +3,7 @@ package com.teamsync.api.features.auth.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
 import com.teamsync.api.features.auth.dto.response.AuthResponse;
+import com.teamsync.api.features.auth.dto.response.LoginResult;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.security.config.SecurityConfig;
 import com.teamsync.api.features.auth.security.filter.JwtAuthenticationFilter;
@@ -77,9 +79,15 @@ class AuthControllerTest {
 
     return new AuthResponse(
         "access-token",
+        900L);
+  }
+
+  private LoginResult createLoginResult() {
+
+    return new LoginResult(
+        "access-token",
         "refresh-token",
-        "Bearer",
-        900000L);
+        900L);
   }
 
   @Test
@@ -110,10 +118,10 @@ class AuthControllerTest {
 
     LoginRequest request = createLoginRequest();
 
-    AuthResponse response = createAuthResponse();
+    LoginResult result = createLoginResult();
 
     when(authService.login(any(LoginRequest.class)))
-        .thenReturn(response);
+        .thenReturn(result);
 
     mockMvc.perform(post("/api/v1/auth/login")
         .contentType(MediaType.APPLICATION_JSON)
@@ -124,9 +132,15 @@ class AuthControllerTest {
             .value("Login successful."))
         .andExpect(jsonPath("$.data.accessToken")
             .value("access-token"))
+        .andExpect(jsonPath("$.data.expiresIn")
+            .value(900))
         .andExpect(jsonPath("$.data.refreshToken")
-            .value("refresh-token"))
+            .doesNotExist())
         .andExpect(jsonPath("$.data.tokenType")
-            .value("Bearer"));
+            .doesNotExist())
+        .andExpect(cookie().exists("refresh_token"))
+        .andExpect(cookie().value("refresh_token", "refresh-token"))
+        .andExpect(cookie().httpOnly("refresh_token", true))
+        .andExpect(cookie().secure("refresh_token", true));
   }
 }

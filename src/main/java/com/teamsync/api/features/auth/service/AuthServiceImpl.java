@@ -3,7 +3,7 @@ package com.teamsync.api.features.auth.service;
 import com.teamsync.api.common.exception.BadRequestException;
 import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
-import com.teamsync.api.features.auth.dto.response.AuthResponse;
+import com.teamsync.api.features.auth.dto.response.LoginResult;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.mapper.AuthMapper;
 import com.teamsync.api.features.auth.security.jwt.JwtService;
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public AuthResponse login(LoginRequest request) {
+  public LoginResult login(LoginRequest request) {
 
     Authentication authentication = authenticationManager.authenticate(
         UsernamePasswordAuthenticationToken.unauthenticated(
@@ -55,13 +55,12 @@ public class AuthServiceImpl implements AuthService {
     CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
     String accessToken = jwtService.generateAccessToken(userDetails);
+
     String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-    return new AuthResponse(
+    return new LoginResult(
         accessToken,
         refreshToken,
-        "Bearer",
-        jwtService.getAccessTokenExpiration());
+        jwtService.getAccessTokenExpirationSeconds());
   }
-
 }

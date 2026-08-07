@@ -119,6 +119,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>teamsync-api-v1</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -20,6 +20,7 @@ import com.teamsync.api.common.exception.BadRequestException;
 import com.teamsync.api.features.auth.dto.request.LoginRequest;
 import com.teamsync.api.features.auth.dto.request.RegisterRequest;
 import com.teamsync.api.features.auth.dto.response.AuthResponse;
+import com.teamsync.api.features.auth.dto.response.LoginResult;
 import com.teamsync.api.features.auth.dto.response.RegisterResponse;
 import com.teamsync.api.features.auth.mapper.AuthMapper;
 import com.teamsync.api.features.auth.security.jwt.JwtService;
@@ -182,17 +183,16 @@ class AuthServiceImplTest {
     when(jwtService.generateRefreshToken(userDetails))
         .thenReturn("refresh-token");
 
-    when(jwtService.getAccessTokenExpiration())
-        .thenReturn(900000L);
+    when(jwtService.getAccessTokenExpirationSeconds())
+        .thenReturn(900L);
 
-    AuthResponse response = service.login(request);
+    LoginResult response = service.login(request);
 
     assertAll(
         () -> assertNotNull(response),
         () -> assertEquals("access-token", response.accessToken()),
         () -> assertEquals("refresh-token", response.refreshToken()),
-        () -> assertEquals("Bearer", response.tokenType()),
-        () -> assertEquals(900000L, response.expiresIn()));
+        () -> assertEquals(900L, response.expiresIn()));
 
     verify(authenticationManager)
         .authenticate(any(
@@ -285,8 +285,8 @@ class AuthServiceImplTest {
     when(jwtService.generateRefreshToken(any()))
         .thenReturn("refresh");
 
-    when(jwtService.getAccessTokenExpiration())
-        .thenReturn(900000L);
+    when(jwtService.getAccessTokenExpirationSeconds())
+        .thenReturn(900L);
 
     service.login(request);
 
@@ -297,6 +297,6 @@ class AuthServiceImplTest {
         .generateRefreshToken(userDetails);
 
     verify(jwtService, times(1))
-        .getAccessTokenExpiration();
+        .getAccessTokenExpirationSeconds();
   }
 }
